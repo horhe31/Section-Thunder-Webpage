@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunder Matrix | Section Command Hub & Arcade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <style>
+        body {
+            background-color: #040406;
+            color: #f4f4f7;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        /* Custom Premium Glassmorphic Textures */
+        .glass-nav {
+            background: rgba(4, 4, 6, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .glass-widget {
+            background: rgba(11, 11, 16, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        /* Premium Ambient Glowing Specifications */
+        /* Configured exactly to instructions: 20px blur radius with 15% opacity shadows */
+        .thunder-glow {
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.15);
+        }
+        .thunder-glow-intense {
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.15);
+        }
+        .glow-zinc {
+            box-shadow: 0 8px 20px rgba(63, 63, 70, 0.15);
+        }
+
+        /* High Performance Smooth CSS Animation Profiles */
+        .fade-in-smooth {
+            animation: fadeIn 0.45s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Board Color Map Nodes for 2048 Grid Tiles */
+        .tile-2 { background-color: #3e3e4d; color: #ffffff; }
+        .tile-4 { background-color: #4d4d66; color: #ffffff; }
+        .tile-8 { background-color: #f2b179; color: #000000; font-weight: 900; }
+        .tile-16 { background-color: #f59563; color: #ffffff; font-weight: 900; }
+        .tile-32 { background-color: #f67c5f; color: #ffffff; font-weight: 900; }
+        .tile-64 { background-color: #f65e3b; color: #ffffff; font-weight: 900; }
+        .tile-128 { background-color: #edcf72; color: #000000; font-weight: 900; box-shadow: 0 0 5px #edcf72; }
+        .tile-256 { background-color: #edcc61; color: #000000; font-weight: 900; box-shadow: 0 0 8px #edcc61; }
+        .tile-512 { background-color: #edc850; color: #ffffff; font-weight: 900; box-shadow: 0 0 12px #edc850; }
+        .tile-1024 { background-color: #edc53f; color: #ffffff; font-weight: 900; box-shadow: 0 0 16px #edc53f; }
+        .tile-2048 { background-color: #e50914; color: #ffffff; font-weight: 900; box-shadow: 0 0 24px #e50914; }
+
+        /* Custom Layout Scrollers */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1b1b26; border-radius: 2px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #2a2a3d; }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden relative flex flex-col justify-between">
+
+    <header class="w-full fixed top-0 left-0 h-16 border-b border-zinc-900/60 glass-nav z-50 px-4 md:px-12 flex justify-between items-center transition-all duration-300">
+        <div class="flex items-center space-x-6">
+            <div onclick="switchViewEngine('home')" class="flex items-center space-x-2.5 cursor-pointer group">
+                <div class="w-8 h-8 bg-purple-600/10 border border-purple-500/30 rounded-lg flex items-center justify-center transition-all group-hover:border-purple-500/60">
+                    <i class="fas fa-bolt text-purple-500 text-sm transition-transform group-hover:scale-110"></i>
+                </div>
+                <span class="text-sm font-black tracking-tight uppercase text-white">Thunder Matrix</span>
+            </div>
+            <button id="sidebar-toggle-btn" class="hidden w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white bg-zinc-900/80 rounded-lg border border-zinc-800 transition-all" title="Toggle Sidebar">
+                <i class="fas fa-bars text-xs"></i>
+            </button>
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-semibold text-zinc-400">
+                <button onclick="switchViewEngine('home')" class="hover:text-white transition-colors">Main Website</button>
+                <button onclick="switchViewEngine('app', 'chess')" class="hover:text-white transition-colors">Ecosystem App</button>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="switchViewEngine('home')" class="text-xs font-bold text-zinc-400 hover:text-white transition-colors">Portal Home</button>
+            <button onclick="switchViewEngine('app', 'chess')" id="header-cta-btn" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition-all shadow thunder-glow">Launch Workspace</button>
+        </div>
+    </header>
+
+    <div id="landing-page-view" class="w-full flex flex-col items-center relative z-20 pt-16">
+        <section class="w-full pt-20 pb-16 px-4 flex flex-col items-center relative">
+            
+            <div id="hero-badge" class="px-3.5 py-1.5 bg-purple-950/20 border border-purple-800/30 rounded-full flex items-center space-x-2 mb-6 cursor-pointer hover:border-purple-700/50 transition-all opacity-0">
+                <i class="fas fa-microchip text-purple-400 text-[10px]"></i>
+                <span class="text-[10px] font-bold text-purple-300 tracking-wide uppercase">Execute Section Operations via AI</span>
+            </div>
+
+            <h1 id="hero-title" class="text-4xl sm:text-5xl md:text-6xl font-black text-center text-white tracking-tighter leading-none max-w-3xl mb-4 opacity-0">
+                Think better with Section Thunder
+            </h1>
+            <p id="hero-subtitle" class="text-xs sm:text-sm text-zinc-400 text-center font-medium max-w-md tracking-normal mb-12 opacity-0">
+                Never miss an operational update, metric target, or tactical team link resource.
+            </p>
+
+            <div class="w-full max-w-5xl h-24 relative flex items-center justify-center mb-[-12px]">
+                <div id="plasma-line" class="absolute w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent bottom-0 opacity-0"></div>
+                <div id="plasma-crest" class="absolute bottom-0 w-[260px] sm:w-[440px] h-[120px] bg-gradient-to-t from-purple-600/20 to-transparent rounded-t-full blur-xl scale-y-75 transform origin-bottom opacity-0"></div>
+                <div id="plasma-core" class="absolute bottom-0 w-[160px] sm:w-[300px] h-[50px] border-t-4 border-purple-400/60 rounded-t-full blur-[2px] opacity-0"></div>
+            </div>
+
+            <div id="app-mockup" class="w-full max-w-5xl min-h-[460px] border border-zinc-900 glass-widget rounded-2xl p-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 shadow-2xl relative z-30 opacity-0 thunder-glow overflow-hidden">
+                <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-zinc-900/60 pb-4 md:pb-0 pr-2 space-y-4">
+                    <div class="w-full h-8 bg-zinc-950 border border-zinc-900 rounded-lg px-2.5 flex justify-between items-center text-zinc-600 shadow-inner">
+                        <span class="text-[10px] font-medium truncate">Search logs & utilities...</span>
+                        <span class="text-[9px] bg-zinc-900 border border-zinc-800 px-1 rounded">⌘K</span>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="px-2.5 py-1.5 bg-purple-950/20 text-purple-400 font-bold text-xs rounded-md border border-purple-900/30 shadow-inner flex items-center gap-2">
+                            <i class="fas fa-file-lines text-[10px]"></i> Active File View
+                        </div>
+                        <button onclick="switchViewEngine('app', 'chess')" class="w-full text-left px-2.5 py-1.5 text-zinc-500 hover:text-zinc-300 text-xs font-semibold rounded-md flex items-center gap-2 transition-colors">
+                            <i class="fas fa-chess-knight text-[10px]"></i> Launch Chess Core
+                        </button>
+                        <button onclick="switchViewEngine('app', 'tetris')" class="w-full text-left px-2.5 py-1.5 text-zinc-500 hover:text-zinc-300 text-xs font-semibold rounded-md flex items-center gap-2 transition-colors">
+                            <i class="fas fa-cubes text-[10px]"></i> Launch Tetris Drop
+                        </button>
+                    </div>
+                </div>
+                <div class="md:col-span-3 flex flex-col justify-start h-full px-2">
+                    <div class="mb-3 pb-2 border-b border-zinc-900/40">
+                        <span class="text-[9px] font-mono font-black text-purple-400 uppercase tracking-widest flex items-center gap-1.5">
+                            <i class="fas fa-folder-open text-[9px]"></i> Workspace Directory
+                        </span>
+                        <h2 class="text-base font-black text-white tracking-tight mt-0.5">Section Thunder Mission System Overview</h2>
+                    </div>
+                    <p class="text-xs text-zinc-400 leading-relaxed border-l-2 border-purple-500/40 pl-3">
+                        Operational monitoring environment framework active. Select any secondary workspace asset panel configuration item to run micro applications or trace pipeline resource parameters instantly.
+                    </p>
+                    <div class="mt-4 p-3 bg-zinc-950/50 border border-zinc-900/80 rounded-xl space-y-2 shadow-inner">
+                        <span class="text-[9px] font-black uppercase tracking-widest text-zinc-500 block"><i class="fas fa-link mr-1"></i> Quick-Launch Management Nodes</span>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <a href="https://teacher.qqeng.com/" target="_blank" class="p-2 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-400 hover:text-white rounded border border-zinc-900/60 transition-colors flex items-center gap-2"><i class="fas fa-id-card text-purple-500 text-[10px]"></i> Teacher Portal</a>
+                            <a href="https://zp9fxvayn6g.jp.larksuite.com/base/DehxbTfBJawDv6sbYtGj7sjmphh?from=from_copylink" target="_blank" class="p-2 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-400 hover:text-white rounded border border-zinc-900/60 transition-colors flex items-center gap-2"><i class="fas fa-users-viewfinder text-purple-500 text-[10px]"></i> Section Masterlist</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden lg:flex flex-col justify-start space-y-3 bg-zinc-950/30 border border-zinc-900/40 rounded-xl p-3 shadow-inner">
+                    <span class="text-[9px] font-black uppercase tracking-widest text-zinc-500 block">System Clock Status</span>
+                    <div class="grid grid-cols-7 gap-1 text-center text-[8px] font-black text-zinc-600 uppercase">
+                        <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-mono font-bold text-zinc-500">
+                        <span class="text-zinc-800">27</span><span class="text-zinc-800">28</span><span class="text-zinc-800">29</span><span class="text-zinc-800">30</span><span>1</span><span>2</span><span>3</span>
+                        <span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+                        <span class="bg-purple-600 text-white rounded font-sans flex items-center justify-center font-bold shadow border border-purple-400/20 thunder-glow-intense">24</span>
+                        <span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>31</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="app-workspace-view" class="hidden flex pt-16 min-h-[calc(100vh-4rem)] relative flex-grow w-full z-20">
+        
+        <aside id="app-left-sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-zinc-950 border-r border-zinc-900 p-4 pt-20 lg:pt-4 flex flex-col justify-between z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto custom-scroll flex-shrink-0 shadow-2xl lg:shadow-none">
+            <div class="space-y-5">
+                <div>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 px-1">Portals & Policies</h3>
+                    <nav class="space-y-0.5">
+                        <a href="https://teacher.qqeng.com/" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-right-to-bracket text-zinc-600 text-[11px] w-4"></i> Teacher Dashboard</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/DehxbTfBJawDv6sbYtGj7sjmphh?from=from_copylink" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-users-viewfinder text-zinc-600 text-[11px] w-4"></i> Section Masterlist</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/file/TTy1bsBjXoixB4xCvVij7HBlpId" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-book text-zinc-600 text-[11px] w-4"></i> Book of Policy</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/P1zqw6Ysmim7VEklwrGjOnZIpce?from=from_copylink" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-circle-question text-zinc-600 text-[11px] w-4"></i> Platform FAQs</a>
+                    </nav>
+                </div>
+
+                <div>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 px-1">Performance Standings</h3>
+                    <nav class="space-y-0.5">
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/NH1IbfYg1aHfy6sgqtgjKasipJv?from=from_copylink" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-ranking-star text-zinc-600 text-[11px] w-4"></i> Monthly Rankings</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/REU3bFA8vaIa71sdnAwj7bVAprg?from=from_copylink" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-star-half-stroke text-zinc-600 text-[11px] w-4"></i> Low Star Tracker</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/sheets/Xgiis8htahNJGjtrWfujDlYlpBh?from=from_copylink&sheet=UKpEeu" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-calendar-check text-zinc-600 text-[11px] w-4"></i> OT / HOL File Record</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/NGTNwy8vri7xF4k0pdej8AQlpXb?from=from_copylink" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-chart-line text-zinc-600 text-[11px] w-4"></i> PFI Count Matrices</a>
+                    </nav>
+                </div>
+
+                <div>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 px-1">Administrative Support</h3>
+                    <nav class="space-y-0.5">
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp87b8pdyH1Ktkvswq0Gxw5d" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-purple-900/30 text-xs font-semibold rounded-lg border border-transparent hover:border-purple-500/20 transition-all"><i class="fas fa-ticket text-purple-400 text-[11px] w-4"></i> Section Ticket Desk</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp9GmYgcuVn5fo1McMOsmJ3b?from=navigation" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-headset text-zinc-600 text-[11px] w-4"></i> QQ IT Ticket Desk</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp6l5Q2fGo3uKh2bV2yT7y1g" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-user-tie text-zinc-600 text-[11px] w-4"></i> Ask HR Department</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjphJDA1GL88P77VEEsmIfRoe" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-triangle-exclamation text-zinc-600 text-[11px] w-4"></i> Online Discrepancies</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp2U1j6vav7kT1fGCDpHFOHf?from=navigation" target="_blank" class="flex items-center gap-2.5 px-3 py-1.5 text-zinc-400 hover:text-white hover:bg-zinc-900/60 text-xs font-semibold rounded-lg transition-colors"><i class="fas fa-scale-balanced text-zinc-600 text-[11px] w-4"></i> File Official Dispute</a>
+                    </nav>
+                </div>
+
+                <div>
+                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 px-1">Functional Arcade</h3>
+                    <nav class="space-y-0.5" id="game-selectors-nav">
+                        <button onclick="switchActiveGameView('chess')" id="nav-btn-chess" class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all">
+                            <span class="flex items-center gap-2.5"><i class="fas fa-chess-rook text-xs w-4 text-center"></i> Tactical Chess Core</span>
+                            <span class="w-1.5 h-1.5 bg-transparent rounded-full dynamic-dot"></span>
+                        </button>
+                        <button onclick="switchActiveGameView('ttt')" id="nav-btn-ttt" class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all">
+                            <span class="flex items-center gap-2.5"><i class="fas fa-square-xmark text-xs w-4 text-center"></i> Speed Tic-Tac-Toe</span>
+                            <span class="w-1.5 h-1.5 bg-transparent rounded-full dynamic-dot"></span>
+                        </button>
+                        <button onclick="switchActiveGameView('m2048')" id="nav-btn-m2048" class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all">
+                            <span class="flex items-center gap-2.5"><i class="fas fa-table-cells text-xs w-4 text-center"></i> 2048 Number Merge</span>
+                            <span class="w-1.5 h-1.5 bg-transparent rounded-full dynamic-dot"></span>
+                        </button>
+                        <button onclick="switchActiveGameView('tetris')" id="nav-btn-tetris" class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-all">
+                            <span class="flex items-center gap-2.5"><i class="fas fa-cubes text-xs w-4 text-center"></i> Tetris Block Drop</span>
+                            <span class="w-1.5 h-1.5 bg-transparent rounded-full dynamic-dot"></span>
+                        </button>
+                    </nav>
+                </div>
+            </div>
+            <div class="pt-4 border-t border-zinc-900 text-[10px] text-zinc-600 font-bold px-1 flex-shrink-0 tracking-tight">
+                Secure Terminal Instance
+            </div>
+        </aside>
+
+        <div class="flex-grow p-3 md:p-6 max-w-7xl mx-auto w-full overflow-hidden">
+            
+            <div id="game-view-container-chess" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full fade-in-smooth">
+                <div id="chess-arena-card" class="lg:col-span-2 bg-card-dark p-4 md:p-6 rounded-2xl border border-zinc-900/60 shadow-2xl flex flex-col justify-between relative min-h-[600px] glow-zinc">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-4 border-b border-zinc-900">
+                        <div>
+                            <h2 class="text-sm md:text-base font-black tracking-tight text-white flex items-center gap-2 uppercase">
+                                Arena Core
+                                <span id="side-badge" class="text-[9px] bg-purple-600/10 text-purple-400 border border-purple-500/20 px-2.5 py-0.5 rounded-full uppercase font-black tracking-wider">White Side</span>
+                            </h2>
+                            <p id="game-status" class="text-xs text-zinc-400 mt-1">Select your starting tactical piece node alignment.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                            <select id="elo-select" class="bg-inner-dark border border-zinc-800 text-zinc-300 text-xs rounded-lg p-2 focus:outline-none cursor-pointer font-bold shadow">
+                                <option value="100">AI: Elo 100 (Beginner)</option>
+                                <option value="800">AI: Elo 800 (Casual)</option>
+                                <option value="1200" selected>AI: Elo 1200 (Intermediate)</option>
+                                <option value="1600">AI: Elo 1600 (Expert)</option>
+                                <option value="2000">AI: Elo 2000 (Master)</option>
+                            </select>
+                            <select id="color-select" onchange="resetAndRealignGame()" class="bg-inner-dark border border-zinc-800 text-zinc-300 text-xs rounded-lg p-2 focus:outline-none cursor-pointer font-bold shadow">
+                                <option value="w" selected>Play White</option>
+                                <option value="b">Play Black</option>
+                                <option value="random">Random Side</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="relative aspect-square max-w-[400px] mx-auto w-full bg-zinc-950 rounded-xl overflow-hidden shadow-2xl p-2 border border-zinc-800/80 my-auto">
+                        <div id="chess-board" class="grid grid-cols-8 grid-rows-8 h-full w-full rounded-lg overflow-hidden relative"></div>
+                        
+                        <div id="game-over-overlay" class="absolute inset-0 bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center gap-4 opacity-0 pointer-events-none transition-all duration-500 z-40">
+                            <div class="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center shadow-lg">
+                                <i id="game-over-icon" class="fas fa-trophy text-amber-500 text-lg"></i>
+                            </div>
+                            <div class="text-center">
+                                <h3 id="game-over-title" class="text-base font-black text-white uppercase tracking-tight">Match Resolved</h3>
+                                <p id="game-over-desc" class="text-xs text-zinc-400 mt-1 max-w-xs px-4">Loop execution parameters matched successfully.</p>
+                            </div>
+                            <button onclick="resetAndRealignGame()" class="px-5 py-2.5 bg-white text-black font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-zinc-200 shadow-md transition-all">
+                                Open New Arena Instance
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-5 gap-2 mt-4 pt-4 border-t border-zinc-900">
+                        <button onclick="triggerUndo()" class="py-2.5 bg-inner-dark hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-bold border border-zinc-800/60 flex items-center justify-center gap-1.5 transition-all shadow shadow-black/40"><i class="fas fa-arrow-left text-[10px]"></i> <span class="hidden sm:inline">Undo</span></button>
+                        <button onclick="triggerRedo()" class="py-2.5 bg-inner-dark hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-bold border border-zinc-800/60 flex items-center justify-center gap-1.5 transition-all shadow shadow-black/40"><i class="fas fa-arrow-right text-[10px]"></i> <span class="hidden sm:inline">Redo</span></button>
+                        <button onclick="requestEngineHint()" class="py-2.5 bg-zinc-900 hover:bg-zinc-800 text-amber-500 rounded-lg text-xs font-bold border border-zinc-800 flex items-center justify-center gap-1.5 transition-all shadow"><i class="fas fa-lightbulb text-[10px]"></i> <span class="hidden sm:inline">Hint</span></button>
+                        <button onclick="toggleDashboardFullscreen()" class="py-2.5 bg-inner-dark hover:bg-zinc-800 text-zinc-300 rounded-lg text-xs font-bold border border-zinc-800/60 flex items-center justify-center gap-1.5 transition-all shadow shadow-black/40"><i class="fas fa-expand text-[10px]"></i> <span class="hidden sm:inline">Screen</span></button>
+                        <button onclick="resetAndRealignGame()" class="py-2.5 bg-red-950/20 hover:bg-red-950/40 text-red-400 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow"><i class="fas fa-power-off text-[10px]"></i> <span class="hidden sm:inline">Reset</span></button>
+                    </div>
+                </div>
+
+                <div class="space-y-6 flex flex-col justify-start">
+                    <div class="bg-card-dark border border-zinc-900 rounded-2xl p-4 shadow-2xl space-y-4 glow-zinc">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400 block"><i class="fas fa-palette mr-1 text-zinc-500"></i> Interface Customization</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setVisualBoardTheme('classic')" id="theme-btn-classic" class="py-2 text-xs font-bold uppercase rounded-lg border transition-all shadow">Classic Wood</button>
+                            <button onclick="setVisualBoardTheme('bw')" id="theme-btn-bw" class="py-2 text-xs font-bold uppercase rounded-lg border transition-all shadow">Minimal B&W</button>
+                        </div>
+
+                        <label class="text-[10px] font-black uppercase tracking-widest text-zinc-400 block pt-1"><i class="fas fa-stopwatch mr-1 text-zinc-500"></i> System Chess Clocks</label>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <button onclick="configureSystemTimerLimit(180)" id="timer-btn-180" class="py-1.5 text-xs font-bold rounded border transition-all">3 Min</button>
+                            <button onclick="configureSystemTimerLimit(300)" id="timer-btn-300" class="py-1.5 text-xs font-bold rounded border transition-all">5 Min</button>
+                            <button onclick="configureSystemTimerLimit(600)" id="timer-btn-600" class="py-1.5 text-xs font-bold rounded border transition-all">10 Min</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-1">
+                            <div class="bg-inner-dark border border-zinc-800/80 rounded-xl p-3 text-center shadow-inner relative overflow-hidden" id="clock-wrapper-w">
+                                <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">White Pool</div>
+                                <div id="timer-display-white" class="text-xl font-black font-mono text-white mt-0.5 tracking-tight">05:00</div>
+                                <div class="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-500 opacity-0 transition-opacity" id="clock-bar-w"></div>
+                            </div>
+                            <div class="bg-inner-dark border border-zinc-800/80 rounded-xl p-3 text-center shadow-inner relative overflow-hidden" id="clock-wrapper-b">
+                                <div class="text-[9px] font-bold text-zinc-500 uppercase tracking-wider">Black Pool</div>
+                                <div id="timer-display-black" class="text-xl font-black font-mono text-zinc-400 mt-0.5 tracking-tight">05:00</div>
+                                <div class="absolute bottom-0 inset-x-0 h-0.5 bg-red-500 opacity-0 transition-opacity" id="clock-bar-b"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-card-dark border border-zinc-900 rounded-2xl p-4 flex flex-col h-[200px] shadow-2xl glow-zinc">
+                        <div class="flex justify-between items-center pb-2 mb-2 border-b border-zinc-900">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400"><i class="fas fa-terminal text-[9px] mr-1 text-zinc-500"></i> Telemetry Logs</span>
+                            <span id="move-counter" class="text-[9px] font-mono font-bold px-2 py-0.5 bg-zinc-950 border border-zinc-900 text-zinc-500 rounded">0 Moves</span>
+                        </div>
+                        <div id="move-history-log" class="flex-grow overflow-y-auto custom-scroll space-y-1.5 pr-1 text-xs text-zinc-400 font-mono"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="game-view-container-ttt" class="w-full max-w-md mx-auto bg-card-dark p-6 rounded-2xl border border-zinc-900/60 shadow-2xl hidden fade-in-smooth glow-zinc">
+                <div class="flex justify-between items-center pb-4 mb-6 border-b border-zinc-900">
+                    <div>
+                        <h2 class="text-base font-black text-white uppercase tracking-tight">Tic-Tac-Toe Matrix</h2>
+                        <p id="ttt-status" class="text-xs text-zinc-400 mt-0.5">Strike any open matrix quadrant node coordinate.</p>
+                    </div>
+                    <button onclick="resetTicTacToeGame()" class="px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg text-xs font-bold uppercase transition-all shadow">Reset Board</button>
+                </div>
+                <div class="grid grid-cols-3 gap-3 aspect-square max-w-[300px] mx-auto w-full bg-zinc-950 p-3 rounded-xl border border-zinc-800/60 shadow-inner">
+                    <div onclick="handleTicTacToeQuadrantClick(0)" data-ttt-idx="0" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(1)" data-ttt-idx="1" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(2)" data-ttt-idx="2" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(3)" data-ttt-idx="3" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(4)" data-ttt-idx="4" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(5)" data-ttt-idx="5" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(6)" data-ttt-idx="6" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(7)" data-ttt-idx="7" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                    <div onclick="handleTicTacToeQuadrantClick(8)" data-ttt-idx="8" class="bg-zinc-900 hover:bg-zinc-800/80 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white transition-all select-none h-20 shadow"></div>
+                </div>
+            </div>
+
+            <div id="game-view-container-m2048" class="w-full max-w-md mx-auto bg-card-dark p-6 rounded-2xl border border-zinc-900/60 shadow-2xl hidden fade-in-smooth glow-zinc">
+                <div class="flex justify-between items-center pb-4 mb-4 border-b border-zinc-900">
+                    <div>
+                        <h2 class="text-base font-black text-white uppercase tracking-tight">2048 Merge Grid</h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Command vectors using directional keyboard arrows.</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xxs font-mono font-bold flex-shrink-0">
+                        <div class="bg-zinc-950 px-2.5 py-1.5 rounded border border-zinc-900 text-zinc-400 shadow-inner">Score: <span id="m2048-score" class="text-emerald-400">0</span></div>
+                        <button onclick="init2048EngineInstance()" class="px-2.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded font-sans uppercase font-bold transition-all shadow">Reset</button>
+                    </div>
+                </div>
+                <div id="m2048-grid-board" class="grid grid-cols-4 grid-rows-4 gap-2.5 bg-zinc-950 p-3 rounded-xl border border-zinc-800/80 aspect-square w-full max-w-[280px] mx-auto shadow-inner"></div>
+            </div>
+
+            <div id="game-view-container-tetris" class="w-full max-w-xl mx-auto bg-card-dark p-4 md:p-6 rounded-2xl border border-zinc-900/60 shadow-2xl hidden grid grid-cols-1 md:grid-cols-3 gap-6 items-start fade-in-smooth glow-zinc">
+                <div class="md:col-span-2 flex flex-col items-center">
+                    <div class="bg-zinc-950 p-2 rounded-xl border border-zinc-800/70 overflow-hidden shadow-inner">
+                        <canvas id="tetris-canvas" width="200" height="400" class="block rounded-lg shadow-2xl"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-4 w-full">
+                    <div>
+                        <h2 class="text-base font-black text-white uppercase tracking-tight">Tetris Cascade</h2>
+                        <p class="text-xxs text-zinc-400 leading-relaxed mt-1.5 font-medium">Left/Right: Shift piece lateral rows.<br>Up Arrow: Cycle rotational orientation.<br>Down Arrow: Accelerate drop fall rate parameters.</p>
+                    </div>
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-3 text-center space-y-1 font-mono font-bold shadow-inner">
+                        <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Total Score Lines</div>
+                        <div id="tetris-score" class="text-lg text-emerald-400 tracking-tight">0</div>
+                    </div>
+                    <button onclick="bootTetrisEngineInstance()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-bold uppercase tracking-wider text-xs rounded-lg transition-all shadow shadow-black">Reboot Engine</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="w-full px-6 py-4 border-t border-zinc-900/40 text-center text-[10px] text-zinc-600 font-bold uppercase tracking-widest relative z-20 bg-zinc-950/20">
+        Section Thunder System Interface Network &copy; 2026 All Rights Reserved
+    </footer>
+
+    <div class="absolute inset-0 bg-[radial-gradient(#221f27_1px,transparent_1px)] [background-size:24px_24px] opacity-20 pointer-events-none z-0"></div>
+
+    <script>
+        // --- SPA NAVIGATION CORE MANAGER ROUTER ---
+        let operationalActiveViewMode = 'home';
+
+        function switchViewEngine(targetMode, initialGameKey = 'chess') {
+            operationalActiveViewMode = targetMode;
+            const homeViewNode = document.getElementById('landing-page-view');
+            const appViewNode = document.getElementById('app-workspace-view');
+            const sideHamburger = document.getElementById('sidebar-toggle-btn');
+            const headerCta = document.getElementById('header-cta-btn');
+
+            if (targetMode === 'home') {
+                appViewNode.classList.add('hidden');
+                homeViewNode.classList.remove('hidden');
+                if (sideHamburger) sideHamburger.classList.add('hidden');
+                headerCta.innerText = "Launch Workspace";
+                headerCta.onclick = () => switchViewEngine('app', 'chess');
+                haltTetrisLoopEngine();
+            } else {
+                homeViewNode.classList.add('hidden');
+                appViewNode.classList.remove('hidden');
+                if (sideHamburger) sideHamburger.classList.remove('hidden');
+                headerCta.innerText = "Exit App View";
+                headerCta.onclick = () => switchViewEngine('home');
+                switchActiveGameView(initialGameKey);
+            }
+        }
+
+        // --- SUB GAME MODULE ROUTER VIEW ---
+        let currentActiveSubGame = 'chess';
+        
+        function switchActiveGameView(viewKey) {
+            currentActiveSubGame = viewKey;
+            const modules = ['chess', 'ttt', 'm2048', 'tetris'];
+            
+            modules.forEach(m => {
+                const element = document.getElementById(`game-view-container-${m}`);
+                const button = document.getElementById(`nav-btn-${m}`);
+                if (element) element.classList.add('hidden');
+                if (button) {
+                    button.className = "w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-900 text-xs font-semibold rounded-lg text-left transition-all group";
+                    button.querySelector('.dynamic-dot').className = "w-1.5 h-1.5 bg-transparent rounded-full dynamic-dot";
+                }
+            });
+
+            const targetElement = document.getElementById(`game-view-container-${viewKey}`);
+            const targetButton = document.getElementById(`nav-btn-${viewKey}`);
+            if (targetElement) targetElement.classList.remove('hidden');
+            if (targetButton) {
+                targetButton.className = "w-full flex items-center justify-between px-3 py-2 bg-purple-950/20 text-purple-400 font-bold text-xs rounded-lg border border-purple-900/30 text-left transition-all";
+                targetButton.querySelector('.dynamic-dot').className = "w-1.5 h-1.5 bg-purple-500 rounded-full dynamic-dot";
+            }
+
+            haltTetrisLoopEngine();
+
+            if (viewKey === 'm2048') init2048EngineInstance();
+            if (viewKey === 'tetris') bootTetrisEngineInstance();
+            if (viewKey === 'chess') initBoardVisuals();
+            if (viewKey === 'ttt') resetTicTacToeGame();
+        }
+
+        // Left Navigation Canvas Drawer Overlay Call Actions Handlers
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const leftSidebarCanvas = document.getElementById('app-left-sidebar');
+        if (sidebarToggleBtn && leftSidebarCanvas) {
+            sidebarToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                leftSidebarCanvas.classList.toggle('-translate-x-full');
+            });
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024 && !leftSidebarCanvas.contains(e.target) && e.target !== sidebarToggleBtn) {
+                    leftSidebarCanvas.classList.add('-translate-x-full');
+                }
+            });
+        }
+
+
+        // --- DYNAMIC VECTOR CHESS ENGINE LOGIC ---
+        const chess = new Chess();
+        let selectedSquare = null;
+        let possibleMoves = [];
+        let playerColor = 'w';
+        let lastMoveData = null;
+        let aiProcessingLock = false;
+        let boardThemeSetting = 'classic';
+
+        let undoneHistoryStack = [];
+        let chessTimeTickerInterval = null;
+        let baseSelectedTimeSeconds = 300;
+        let whiteRemainingTimeSeconds = 300;
+        let blackRemainingTimeSeconds = 300;
+        let activeClockRunningState = false;
+
+        function setVisualBoardTheme(themeName) {
+            boardThemeSetting = themeName;
+            const btnClassic = document.getElementById('theme-btn-classic');
+            const btnBw = document.getElementById('theme-btn-bw');
+            if (btnClassic && btnBw) {
+                if (themeName === 'classic') {
+                    btnClassic.className = "py-1.5 text-xs font-bold uppercase rounded-lg bg-amber-950/20 text-amber-500 border border-amber-900/40 shadow";
+                    btnBw.className = "py-1.5 text-xs font-bold uppercase rounded-lg border border-zinc-800 bg-zinc-900/40 text-zinc-400 transition-all";
+                } else {
+                    btnBw.className = "py-1.5 text-xs font-bold uppercase rounded-lg bg-zinc-800/30 text-white border border-zinc-700 shadow";
+                    btnClassic.className = "py-1.5 text-xs font-bold uppercase rounded-lg border border-zinc-800 bg-zinc-900/40 text-zinc-400 transition-all";
+                }
+            }
+            initBoardVisuals();
+        }
+
+        function configureSystemTimerLimit(secondsCount) {
+            baseSelectedTimeSeconds = secondsCount;
+            [180, 300, 600].forEach(s => {
+                const button = document.getElementById(`timer-btn-${s}`);
+                if (button) button.className = "py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-xs font-bold rounded border border-zinc-800/80 transition-all shadow";
+            });
+            const selectedBtn = document.getElementById(`timer-btn-${secondsCount}`);
+            if (selectedBtn) selectedBtn.className = "py-1.5 bg-zinc-800 text-white text-xs font-black rounded border border-zinc-700 transition-all shadow-inner";
+            resetAndRealignGame();
+        }
+
+        function initBoardVisuals() {
+            const boardContainer = document.getElementById('chess-board');
+            if (!boardContainer) return;
+            boardContainer.innerHTML = '';
+            const isReversed = (playerColor === 'b');
+            
+            for (let r = 0; r < 8; r++) {
+                const row = isReversed ? 7 - r : r;
+                for (let c = 0; c < 8; c++) {
+                    const col = isReversed ? 7 - c : c;
+                    const file = String.fromCharCode(97 + col);
+                    const rank = 8 - row;
+                    const squareNotation = file + rank;
+                    
+                    const squareElement = document.createElement('div');
+                    squareElement.dataset.square = squareNotation;
+                    const isDark = (row + col) % 2 === 1;
+                    
+                    if (boardThemeSetting === 'classic') {
+                        squareElement.className = `flex items-center justify-center relative aspect-square cursor-pointer select-none ${isDark ? 'bg-[#b58863]' : 'bg-[#f0d9b5]'}`;
+                    } else {
+                        squareElement.className = `flex items-center justify-center relative aspect-square cursor-pointer select-none ${isDark ? 'bg-zinc-800' : 'bg-zinc-200'}`;
+                    }
+                    
+                    squareElement.addEventListener('click', () => handleSquareClick(squareNotation));
+                    boardContainer.appendChild(squareElement);
+                }
+            }
+            syncBoardState();
+        }
+
+        function syncBoardState() {
+            const boardData = chess.board();
+            const squares = document.querySelectorAll('#chess-board [data-square]');
+            const isChecked = chess.in_check();
+            const activeTurnColor = chess.turn();
+
+            squares.forEach(sq => {
+                const notation = sq.dataset.square;
+                const fileIdx = notation.charCodeAt(0) - 97;
+                const rankIdx = 8 - parseInt(notation[1]);
+                const piece = boardData[rankIdx][fileIdx];
+                sq.innerHTML = '';
+
+                if (lastMoveData && (notation === lastMoveData.from || notation === lastMoveData.to)) {
+                    const overlay = document.createElement('div');
+                    overlay.className = "absolute inset-0 bg-amber-500/25 pointer-events-none z-0";
+                    sq.appendChild(overlay);
+                }
+                if (selectedSquare === notation) {
+                    const overlay = document.createElement('div');
+                    overlay.className = "absolute inset-0 bg-zinc-500/30 pointer-events-none z-0";
+                    sq.appendChild(overlay);
+                }
+                if (piece) {
+                    const key = piece.color + piece.type.toUpperCase();
+                    const img = document.createElement('img');
+                    img.src = `https://upload.wikimedia.org/wikipedia/commons/${getPieceImageHash(key)}`;
+                    img.className = "w-[85%] h-[85%] object-contain select-none drop-shadow z-10 pointer-events-none";
+                    sq.appendChild(img);
+                    
+                    if (piece.type === 'k' && piece.color === activeTurnColor && isChecked) {
+                        const pulseOverlay = document.createElement('div');
+                        pulseOverlay.className = "absolute inset-0 bg-red-600/50 animate-pulse pointer-events-none z-0";
+                        sq.appendChild(pulseOverlay);
+                    }
+                }
+                if (possibleMoves.includes(notation)) {
+                    const dot = document.createElement('div');
+                    if (piece) dot.className = 'absolute inset-0 border-[3.5px] border-emerald-500 rounded-full m-1 z-20 pointer-events-none';
+                    else dot.className = 'w-2.5 h-2.5 bg-emerald-500/90 rounded-full z-20 pointer-events-none shadow shadow-black';
+                    sq.appendChild(dot);
+                }
+            });
+
+            updateTelemetryLogDisplay();
+            processMatchOverEvaluation();
+            syncVisualTimerEngineBars();
+        }
+
+        function getPieceImageHash(key) {
+            const hashes = {
+                'wP': '4/45/Chess_plt45.svg', 'wR': '7/72/Chess_rlt45.svg', 'wN': '7/70/Chess_nlt45.svg',
+                'wB': 'b/b1/Chess_blt45.svg', 'wQ': '1/15/Chess_qlt45.svg', 'wK': '4/42/Chess_klt45.svg',
+                'bP': 'c/c7/Chess_pdt45.svg', 'bR': 'f/ff/Chess_rdt45.svg', 'bN': 'e/ef/Chess_ndt45.svg',
+                'bB': '9/98/Chess_bdt45.svg', 'bQ': '4/47/Chess_qdt45.svg', 'bK': 'f/f0/Chess_kdt45.svg'
+            };
+            return hashes[key];
+        }
+
+        function handleSquareClick(square) {
+            if (chess.game_over() || chess.turn() !== playerColor || aiProcessingLock || whiteRemainingTimeSeconds <= 0 || blackRemainingTimeSeconds <= 0) return;
+            if (selectedSquare === square) { clearSelectionMemory(); return; }
+
+            const piece = chess.get(square);
+            if (selectedSquare === null) {
+                if (piece && piece.color === playerColor) {
+                    selectedSquare = square;
+                    possibleMoves = chess.moves({ square: square, verbose: true }).map(m => m.to);
+                    syncBoardState();
+                }
+            } else {
+                if (possibleMoves.includes(square)) {
+                    const legalOptions = chess.moves({ verbose: true });
+                    const match = legalOptions.find(m => m.from === selectedSquare && m.to === square);
+                    if (match) {
+                        const result = chess.move({ from: selectedSquare, to: square, promotion: 'q' });
+                        if (result) {
+                            undoneHistoryStack = [];
+                            lastMoveData = { from: result.from, to: result.to };
+                            clearSelectionMemory();
+                            if (!activeClockRunningState) startSystemTemporalClockLoop();
+                            if (!chess.game_over()) {
+                                aiProcessingLock = true;
+                                setTimeout(triggerAiLookaheadEngine, 750);
+                            }
+                        }
+                    } else { clearSelectionMemory(); }
+                } else if (piece && piece.color === playerColor) {
+                    selectedSquare = square;
+                    possibleMoves = chess.moves({ square: square, verbose: true }).map(m => m.to);
+                    syncBoardState();
+                } else { clearSelectionMemory(); }
+            }
+        }
+
+        function clearSelectionMemory() { selectedSquare = null; possibleMoves = []; syncBoardState(); }
+
+        function startSystemTemporalClockLoop() {
+            activeClockRunningState = true; clearInterval(chessTimeTickerInterval);
+            chessTimeTickerInterval = setInterval(() => {
+                if (chess.game_over() || !activeClockRunningState) { clearInterval(chessTimeTickerInterval); return; }
+                if (chess.turn() === 'w') { whiteRemainingTimeSeconds--; if (whiteRemainingTimeSeconds <= 0) handleTimeOutForfeitOutcome('w'); }
+                else { blackRemainingTimeSeconds--; if (blackRemainingTimeSeconds <= 0) handleTimeOutForfeitOutcome('b'); }
+                refreshVisualTimerNodeStrings();
+            }, 1000);
+        }
+
+        function refreshVisualTimerNodeStrings() {
+            const elW = document.getElementById('timer-display-white');
+            const elB = document.getElementById('timer-display-black');
+            if (elW && elB) {
+                elW.innerText = formatSecondsToClockNotation(whiteRemainingTimeSeconds);
+                elB.innerText = formatSecondsToClockNotation(blackRemainingTimeSeconds);
+            }
+        }
+
+        function formatSecondsToClockNotation(totalSecs) {
+            const m = Math.floor(Math.max(0, totalSecs) / 60); const s = Math.max(0, totalSecs) % 60;
+            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function syncVisualTimerEngineBars() {
+            const wrapW = document.getElementById('clock-wrapper-w'); const wrapB = document.getElementById('clock-wrapper-b');
+            const barW = document.getElementById('clock-bar-w'); const barB = document.getElementById('clock-bar-b');
+            if (!activeClockRunningState || !barW) return;
+            if (chess.turn() === 'w') {
+                barW.classList.remove('opacity-0'); barB.classList.add('opacity-0');
+                wrapW.classList.add('border-emerald-500/30'); wrapB.classList.remove('border-red-500/30');
+            } else {
+                barB.classList.remove('opacity-0'); barW.classList.add('opacity-0');
+                wrapB.classList.add('border-red-500/30'); wrapW.classList.remove('border-emerald-500/30');
+            }
+        }
+
+        function handleTimeOutForfeitOutcome(failedColor) {
+            activeClockRunningState = false; clearInterval(chessTimeTickerInterval);
+            const overlay = document.getElementById('game-over-overlay');
+            if (overlay) overlay.classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('game-over-icon').className = "fas fa-hourglass-end text-red-500 text-lg";
+            document.getElementById('game-over-title').innerText = "Flag Expiration";
+            document.getElementById('game-over-desc').innerText = failedColor === playerColor ? "Your clock expired." : "The AI clock expired.";
+        }
+
+        // --- REPAINT-FIXED AI LOOKAHEAD CALCULATOR MATRIX ---
+        function triggerAiLookaheadEngine() {
+            try {
+                if (chess.game_over() || chess.turn() === playerColor || whiteRemainingTimeSeconds <= 0 || blackRemainingTimeSeconds <= 0) {
+                    aiProcessingLock = false;
+                    return;
+                }
+
+                const baseOptions = chess.moves({ verbose: true });
+                if (baseOptions.length === 0) {
+                    aiProcessingLock = false;
+                    return;
+                }
+
+                const elo = parseInt(document.getElementById('elo-select').value);
+                let mistakeProb = elo <= 100 ? 0.85 : (elo <= 800 ? 0.45 : (elo <= 1600 ? 0.05 : 0.00));
+                
+                let choice = (Math.random() < mistakeProb) ? baseOptions[Math.floor(Math.random() * baseOptions.length)] : compileAlphaBetaBestMove(baseOptions);
+                
+                if (choice) {
+                    const compMove = chess.move({ from: choice.from, to: choice.to, promotion: 'q' });
+                    if (compMove) lastMoveData = { from: compMove.from, to: compMove.to };
+                }
+            } catch (err) { 
+                console.error("AI Thread Error: ", err); 
+            } finally { 
+                aiProcessingLock = false; 
+                // BUG FIX: Isolated microtask pushes visual updates cleanly into an autonomous repaint cycle
+                setTimeout(() => {
+                    syncBoardState();
+                }, 50);
+            }
+        }
+
+        function compileAlphaBetaBestMove(variations) {
+            if (variations.length === 0) return null;
+            variations.sort(() => Math.random() - 0.5);
+            
+            let bestScore = (chess.turn() === 'b') ? -Infinity : Infinity;
+            let bestMove = variations[0];
+
+            for (let i = 0; i < variations.length; i++) {
+                const validMove = chess.move({ from: variations[i].from, to: variations[i].to, promotion: 'q' });
+                if (validMove) {
+                    const score = evaluateStaticMetrics(); 
+                    chess.undo();
+                    
+                    if (chess.turn() === 'b') { 
+                        if (score > bestScore) { bestScore = score; bestMove = variations[i]; }
+                    } else { 
+                        if (score < bestScore) { bestScore = score; bestMove = variations[i]; }
+                    }
+                }
+            }
+            return bestMove;
+        }
+
+        function evaluateStaticMetrics() {
+            let sum = 0; const matrix = chess.board();
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const b = matrix[r][c];
+                    if (b) {
+                        let val = pieceValues[b.type];
+                        if ((r >= 3 && r <= 4) && (c >= 3 && c <= 4)) val += 1.5;
+                        sum += (b.color === 'b') ? val : -val;
+                    }
+                }
+            }
+            return sum;
+        }
+
+        function updateTelemetryLogDisplay() {
+            const panel = document.getElementById('move-history-log'); const hist = chess.history({ verbose: true });
+            if (!panel) return; panel.innerHTML = '';
+            document.getElementById('move-counter').innerText = `${hist.length} Moves`;
+            if (hist.length === 0) { panel.innerHTML = '<div class="text-zinc-600 italic text-[10px] py-1">Awaiting matrix logs...</div>'; return; }
+            hist.forEach((m, idx) => {
+                const turnNum = Math.floor(idx / 2) + 1;
+                if (idx % 2 === 0) {
+                    const row = document.createElement('div'); row.className = 'py-0.5 border-b border-zinc-900 flex items-center justify-between px-1';
+                    row.innerHTML = `<span class="text-zinc-600 text-[10px] w-6">#${turnNum}</span><span class="text-zinc-200 flex-grow font-semibold">White: ${m.from}-${m.to}</span><span id="black-sub-node-${turnNum}" class="text-zinc-400 font-semibold w-1/3"></span>`;
+                    panel.appendChild(row);
+                } else {
+                    const subField = document.getElementById(`black-sub-node-${turnNum}`);
+                    if (subField) subField.innerHTML = `Black: ${m.from}-${m.to}`;
+                }
+            });
+            panel.scrollTop = panel.scrollHeight;
+        }
+
+        function triggerUndo() {
+            if (aiProcessingLock) return;
+            const hist = chess.history({ verbose: true }); if (hist.length < 2) return;
+            const a = chess.undo(); const b = chess.undo();
+            if (a && b) { undoneHistoryStack.push(a, b); const curr = chess.history({ verbose: true }); lastMoveData = curr.length > 0 ? { from: curr[curr.length - 1].from, to: curr[curr.length - 1].to } : null; clearSelectionMemory(); }
+        }
+
+        function triggerRedo() {
+            if (aiProcessingLock || undoneHistoryStack.length < 2) return;
+            const p = undoneHistoryStack.pop(); const a = undoneHistoryStack.pop();
+            if (p && a) { chess.move({ from: p.from, to: p.to, promotion: 'q' }); chess.move({ from: a.from, to: a.to, promotion: 'q' }); lastMoveData = { from: a.from, to: a.to }; clearSelectionMemory(); }
+        }
+
+        function requestEngineHint() {
+            if (chess.game_over() || chess.turn() !== playerColor || aiProcessingLock) return;
+            const hint = compileAlphaBetaBestMove(chess.moves({ verbose: true })); if (!hint) return;
+            const sqO = document.querySelector(`[data-square="${hint.from}"]`); const sqD = document.querySelector(`[data-square="${hint.to}"]`);
+            if (sqO && sqD) {
+                sqO.innerHTML += `<div class="absolute inset-0 bg-amber-500/30 border border-amber-500 rounded z-30 hint-flash"></div>`;
+                sqD.innerHTML += `<div class="absolute inset-0 bg-amber-500/30 border border-amber-500 rounded z-30 hint-flash"></div>`;
+                setTimeout(() => document.querySelectorAll('.hint-flash').forEach(e => e.remove()), 1000);
+            }
+        }
+
+        function toggleDashboardFullscreen() { const el = document.getElementById('chess-arena-card'); if (!document.fullscreenElement) el.requestFullscreen().catch(() => {}); else document.exitFullscreen(); }
+
+        function processMatchOverEvaluation() {
+            const overlay = document.getElementById('game-over-overlay'); if (!overlay) return;
+            if (chess.game_over()) {
+                activeClockRunningState = false; clearInterval(chessTimeTickerInterval); overlay.classList.remove('opacity-0', 'pointer-events-none');
+                if (chess.in_checkmate()) {
+                    document.getElementById('game-over-icon').className = "fas fa-skull text-red-500 text-sm";
+                    document.getElementById('game-over-title').innerText = chess.turn() === playerColor ? "Defeat Registered" : "Checkmate Victory";
+                    document.getElementById('game-over-desc').innerText = chess.turn() === playerColor ? "Checkmate reached." : "Opponent position checkmated successfully.";
+                } else {
+                    document.getElementById('game-over-icon').className = "fas fa-handshake text-zinc-500 text-sm"; document.getElementById('game-over-title').innerText = "Stalemate"; document.getElementById('game-over-desc').innerText = "The game ended in a draw.";
+                }
+            } else if (whiteRemainingTimeSeconds > 0 && blackRemainingTimeSeconds > 0) { overlay.classList.add('opacity-0', 'pointer-events-none'); }
+        }
+
+        function resetAndRealignGame() {
+            activeClockRunningState = false; clearInterval(chessTimeTickerInterval);
+            whiteRemainingTimeSeconds = baseSelectedTimeSeconds; blackRemainingTimeSeconds = baseSelectedTimeSeconds; refreshVisualTimerNodeStrings();
+            const colorOption = document.getElementById('color-select').value;
+            playerColor = (colorOption === 'random') ? (Math.random() < 0.5 ? 'w' : 'b') : colorOption;
+            chess.reset(); lastMoveData = null; selectedSquare = null; possibleMoves = []; undoneHistoryStack = [];
+            const badge = document.getElementById('side-badge');
+            if (badge) badge.innerText = playerColor === 'w' ? 'White Side' : 'Black Side';
+            initBoardVisuals();
+            if (chess.turn() !== playerColor) { aiProcessingLock = true; setTimeout(triggerAiLookaheadEngine, 1000); }
+        }
+
+        // --- SPEED TIC-TAC-TOE ENGINE CONTROL ---
+        let tttMatrixState = ['', '', '', '', '', '', '', '', '']; let tttMatchRunning = true;
+        function resetTicTacToeGame() {
+            tttMatrixState = ['', '', '', '', '', '', '', '', '']; tttMatchRunning = true;
+            const status = document.getElementById('ttt-status');
+            if (status) { status.innerText = "Strike any matrix tile quadrant node."; status.className = "text-xs text-zinc-400 mt-0.5"; }
+            for (let i = 0; i < 9; i++) {
+                const node = document.querySelector(`[data-ttt-idx="${i}"]`);
+                if (node) { node.innerText = ''; node.className = "bg-zinc-900 hover:bg-zinc-800 rounded-lg flex items-center justify-center text-2xl font-black cursor-pointer text-white h-20 shadow"; }
+            }
+        }
+
+        function handleTicTacToeQuadrantClick(idx) {
+            if (!tttMatchRunning || tttMatrixState[idx] !== '') return;
+            executeTicTacToeAction(idx, 'X');
+            if (verifyTicTacToeWinCondition('X')) { terminateTtt("Victory Achieved", "text-emerald-400"); return; }
+            if (tttMatrixState.every(c => c !== '')) { terminateTtt("Grid Balanced Draw", "text-zinc-500"); return; }
+            tttMatchRunning = false; document.getElementById('ttt-status').innerText = "AI processing layout coordinates...";
+            setTimeout(() => {
+                let aiMove = findStrategicTicTacToeMove();
+                if (aiMove === -1) { let open = []; tttMatrixState.forEach((v, i) => { if (v === '') open.push(i); }); aiMove = open[Math.floor(Math.random() * open.length)]; }
+                if (aiMove !== undefined) executeTicTacToeAction(aiMove, 'O');
+                tttMatchRunning = true;
+                if (verifyTicTacToeWinCondition('O')) { terminateTtt("Defeat Registered", "text-red-500"); return; }
+                document.getElementById('ttt-status').innerText = "Strike any matrix tile coordinate node.";
+            }, 500);
+        }
+
+        function executeTicTacToeAction(idx, marker) {
+            tttMatrixState[idx] = marker; const el = document.querySelector(`[data-ttt-idx="${idx}"]`);
+            if (el) el.className = `bg-zinc-900 rounded-lg flex items-center justify-center text-2xl font-black ${marker === 'X' ? 'text-emerald-400 border border-emerald-500/20' : 'text-red-500 border border-red-500/20'}`, el.innerText = marker;
+        }
+
+        function findStrategicTicTacToeMove() {
+            const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for (let l of lines) { let c = l.map(i => tttMatrixState[i]); if (c.filter(v => v === 'O').length === 2 && c.filter(v => v === '').length === 1) return l[c.indexOf('')]; }
+            for (let l of lines) { let c = l.map(i => tttMatrixState[i]); if (c.filter(v => v === 'X').length === 2 && c.filter(v => v === '').length === 1) return l[c.indexOf('')]; }
+            return -1;
+        }
+
+        function verifyTicTacToeWinCondition(sym) { const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]; return wins.some(w => w.every(i => tttMatrixState[i] === sym)); }
+        function terminateTtt(str, css) { tttMatchRunning = false; const label = document.getElementById('ttt-status'); label.className = `text-xs font-bold ${css} mt-0.5 animate-pulse`; label.innerText = str; }
+
+        // --- MODULE 3: 2048 MERGE MATRIX GAME ENGINE ---
+        let m2048Array = Array(16).fill(0); let m2048Score = 0;
+        function init2048EngineInstance() { m2048Array.fill(0); m2048Score = 0; const el = document.getElementById('m2048-score'); if(el) el.innerText = m2048Score; spawn2048RandomTile(); spawn2048RandomTile(); paint2048GridInterface(); }
+        function spawn2048RandomTile() { let blank = []; m2048Array.forEach((v, idx) => { if (v === 0) blank.push(idx); }); if (blank.length > 0) m2048Array[blank[Math.floor(Math.random() * blank.length)]] = Math.random() < 0.9 ? 2 : 4; }
+        function paint2048GridInterface() { const board = document.getElementById('m2048-grid-board'); if(!board)return; board.innerHTML = ''; m2048Array.forEach(val => { const node = document.createElement('div'); node.className = `rounded-lg flex items-center justify-center text-xs font-black border border-zinc-900/40 transition-all ${val > 0 ? 'tile-' + val : 'bg-zinc-900/30'}`; node.innerText = val > 0 ? val : ''; board.appendChild(node); }); }
+        function trigger2048ShiftMechanic(dir) {
+            if (currentActiveSubGame !== 'm2048') return; let snapshot = JSON.stringify(m2048Array);
+            for (let i = 0; i < 4; i++) {
+                let line = []; for (let j = 0; j < 4; j++) { let idx = dir === 'left' ? i * 4 + j : (dir === 'right' ? i * 4 + (3 - j) : (dir === 'up' ? j * 4 + i : (3 - j) * 4 + i)); line.push(m2048Array[idx]); }
+                let filtered = line.filter(v => v !== 0); for (let k = 0; k < filtered.length - 1; k++) { if (filtered[k] === filtered[k+1]) { filtered[k] *= 2; m2048Score += filtered[k]; filtered.splice(k+1, 1); } }
+                while (filtered.length < 4) filtered.push(0);
+                for (let j = 0; j < 4; j++) { let idx = dir === 'left' ? i * 4 + j : (dir === 'right' ? i * 4 + (3 - j) : (dir === 'up' ? j * 4 + i : (3 - j) * 4 + i)); m2048Array[idx] = filtered[j]; }
+            }
+            if (snapshot !== JSON.stringify(m2048Array)) { spawn2048RandomTile(); document.getElementById('m2048-score').innerText = m2048Score; paint2048GridInterface(); }
+        }
+
+        // --- MODULE 4: TETRIS BLOCK DROP LOGIC ARCADE ENGINE ---
+        const tetrisCanvas = document.getElementById('tetris-canvas'); const tetrisCtx = tetrisCanvas ? tetrisCanvas.getContext('2d') : null;
+        let tetrisArenaMatrix = Array(20).fill().map(() => Array(10).fill(0)); let tetrisScoreValue = 0; let tetrisIntervalId = null;
+        const tetrisShapes = { 'I': [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], 'J': [[1,0,0],[1,1,1],[0,0,0]], 'L': [[0,0,1],[1,1,1],[0,0,0]], 'O': [[1,1],[1,1]], 'S': [[0,1,1],[1,1,0],[0,0,0]], 'T': [[0,1,0],[1,1,1],[0,0,0]], 'Z': [[1,1,0],[0,1,1],[0,0,0]] };
+        const tetrisColors = [null, '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4']; let tetrisActivePiece = null;
+        function bootTetrisEngineInstance() { tetrisArenaMatrix = Array(20).fill().map(() => Array(10).fill(0)); tetrisScoreValue = 0; const el = document.getElementById('tetris-score'); if(el) el.innerText = tetrisScoreValue; spawnTetrisNewPieceBlock(); clearInterval(tetrisIntervalId); tetrisIntervalId = setInterval(processTetrisTickFrame, 700); renderTetrisCanvasMatrix(); }
+        function haltTetrisLoopEngine() { clearInterval(tetrisIntervalId); }
+        function spawnTetrisNewPieceBlock() { const keys = Object.keys(tetrisShapes); const chosenKey = keys[Math.floor(Math.random() * keys.length)]; const indexColor = Math.floor(Math.random() * 7) + 1; tetrisActivePiece = { matrix: tetrisShapes[chosenKey].map(row => row.map(v => v ? indexColor : 0)), pos: { x: 3, y: 0 } }; if (verifyTetrisCollisionState()) { haltTetrisLoopEngine(); alert("Grid block limits resolved."); } }
+        function verifyTetrisCollisionState() { const m = tetrisActivePiece.matrix; const p = tetrisActivePiece.pos; for (let y = 0; y < m.length; y++) { for (let x = 0; x < m[y].length; x++) { if (m[y][x] !== 0) { let arenaX = p.x + x; let arenaY = p.y + y; if (arenaX < 0 || arenaX >= 10 || arenaY >= 20 || (arenaY >= 0 && tetrisArenaMatrix[arenaY][arenaX] !== 0)) return true; } } } return false; }
+        function mergePieceToTetrisArena() { tetrisActivePiece.matrix.forEach((row, y) => { row.forEach((value, x) => { if (value !== 0) { let targetY = tetrisActivePiece.pos.y + y; if (targetY >= 0) tetrisArenaMatrix[targetY][tetrisActivePiece.pos.x + x] = value; } }); }); }
+        function sweepTetrisFullRows() { let clearCounter = 0; outer: for (let y = 20 - 1; y >= 0; y--) { for (let x = 0; x < 10; x++) { if (tetrisArenaMatrix[y][x] === 0) continue outer; } const line = tetrisArenaMatrix.splice(y, 1)[0].fill(0); tetrisArenaMatrix.unshift(line); y++; clearCounter++; } if (clearCounter > 0) { tetrisScoreValue += clearCounter * 100; document.getElementById('tetris-score').innerText = tetrisScoreValue; } }
+        function processTetrisTickFrame() { if (currentActiveSubGame !== 'tetris') return; tetrisActivePiece.pos.y++; if (verifyTetrisCollisionState()) { tetrisActivePiece.pos.y--; mergePieceToTetrisArena(); sweepTetrisFullRows(); spawnTetrisNewPieceBlock(); } renderTetrisCanvasMatrix(); }
+        function rotateTetrisActivePiece() { const m = tetrisActivePiece.matrix; const n = m.length; let temp = Array(n).fill().map(() => Array(n).fill(0)); for (let y = 0; y < n; y++) { for (let x = 0; x < n; x++) temp[x][n - 1 - y] = m[y][x]; } const baselineMatrix = tetrisActivePiece.matrix; tetrisActivePiece.matrix = temp; if (verifyTetrisCollisionState()) tetrisActivePiece.matrix = baselineMatrix; }
+        function renderTetrisCanvasMatrix() { if(!tetrisCtx)return; tetrisCtx.fillStyle = '#060609'; tetrisCtx.fillRect(0, 0, 200, 400); tetrisArenaMatrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { tetrisCtx.fillStyle = tetrisColors[val]; tetrisCtx.fillRect(x * 20, y * 20, 19, 19); } }); }); if (tetrisActivePiece) { tetrisActivePiece.matrix.forEach((row, y) => { row.forEach((val, x) => { if (val !== 0) { tetrisCtx.fillStyle = tetrisColors[val]; tetrisCtx.fillRect((tetrisActivePiece.pos.x + x) * 20, (tetrisActivePiece.pos.y + y) * 20, 19, 19); } }); }); } }
+
+        // --- GLOBAL KEYBOARD EVENT TRACE HANDLING ---
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) { if (operationalActiveViewMode === 'app' && ['m2048', 'tetris'].includes(currentActiveSubGame)) e.preventDefault(); }
+            if (operationalActiveViewMode !== 'app') return;
+            if (currentActiveSubGame === 'm2048') {
+                if (key === 'arrowleft' || key === 'a') trigger2048ShiftMechanic('left');
+                else if (key === 'arrowright' || key === 'd') trigger2048ShiftMechanic('right');
+                else if (key === 'arrowup' || key === 'w') trigger2048ShiftMechanic('up');
+                else if (key === 'arrowdown' || key === 's') trigger2048ShiftMechanic('down');
+            }
+            if (currentActiveSubGame === 'tetris' && tetrisActivePiece) {
+                if (key === 'arrowleft' || key === 'a') { tetrisActivePiece.pos.x--; if (verifyTetrisCollisionState()) tetrisActivePiece.pos.x++; }
+                else if (key === 'arrowright' || key === 'd') { tetrisActivePiece.pos.x++; if (verifyTetrisCollisionState()) text=tetrisActivePiece.pos.x--; }
+                else if (key === 'arrowdown' || key === 's') { tetrisActivePiece.pos.y++; if (verifyTetrisCollisionState()) { tetrisActivePiece.pos.y--; mergePieceToTetrisArena(); sweepTetrisFullRows(); spawnTetrisNewPieceBlock(); } }
+                else if (key === 'arrowup' || key === 'w') { rotateTetrisActivePiece(); }
+                renderTetrisCanvasMatrix();
+            }
+        });
+
+        // --- GSAP PRE-LOADER TIMELINE ANIMATION SEQUENCING ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+            tl.to('#hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
+              .to('#hero-title', { opacity: 1, y: 0, duration: 0.8 }, 0.35)
+              .to('#hero-subtitle', { opacity: 1, y: 0, duration: 0.8 }, 0.5)
+              .to('#plasma-line', { opacity: 1, scaleX: 1, duration: 1.2, ease: "power2.inOut" }, 0.4)
+              .to('#plasma-crest', { opacity: 1, scaleY: 1, duration: 1.4 }, 0.6)
+              .to('#plasma-core', { opacity: 1, duration: 1 }, 0.7)
+              .to('#app-mockup', { opacity: 1, y: 0, duration: 1 }, 0.75);
+
+            gsap.to(['#plasma-crest', '#plasma-core'], { scaleX: 1.04, duration: 4, yoyo: true, repeat: -1, ease: "sine.inOut" });
+
+            // Initialize global configuration parameters
+            configureSystemTimerLimit(300);
+            setVisualBoardTheme('classic');
+            switchViewEngine('home');
+        });
+    </script>
+</body>
+</html>
