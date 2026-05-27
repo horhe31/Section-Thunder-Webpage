@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,10 +29,12 @@
                         'float-delayed': 'float 8s ease-in-out infinite 2s',
                         'fade-in': 'fadeIn 0.45s cubic-bezier(0.25, 1, 0.5, 1) forwards',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-down': 'slideDown 0.3s ease-out forwards',
                     },
                     keyframes: {
                         float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } },
-                        fadeIn: { from: { opacity: 0, transform: 'translateY(10px)' }, to: { opacity: 1, transform: 'translateY(0)' } }
+                        fadeIn: { from: { opacity: 0, transform: 'translateY(10px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+                        slideDown: { from: { opacity: 0, height: 0 }, to: { opacity: 1, height: 'auto' } }
                     }
                 }
             }
@@ -45,11 +47,7 @@
             --cursor-y: 50%; 
             --bg-base: #040406;
             --text-main: #f4f4f7;
-            --text-muted: #a1a1aa;
             --glass-bg: rgba(11, 11, 16, 0.6);
-            --glass-nav: rgba(4, 4, 6, 0.7);
-            --border-subtle: rgba(255, 255, 255, 0.05);
-            --widget-inner: rgba(24, 24, 27, 0.4);
         }
         body {
             background-color: var(--bg-base);
@@ -58,10 +56,11 @@
             background-image: radial-gradient(circle 800px at var(--cursor-x) var(--cursor-y), rgba(168, 85, 247, 0.08) 0%, transparent 80%);
             background-attachment: fixed;
             transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
         }
         
-        .glass-nav { background: rgba(8, 8, 12, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-widget { background: var(--glass); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-nav { background: rgba(8, 8, 12, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .glass-widget { background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.08); }
         .inner-widget { background: rgba(24, 24, 27, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); }
         
         .custom-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -72,24 +71,33 @@
         .wave-path { fill: none; stroke-width: 1.5px; opacity: 0.4; mix-blend-mode: screen; }
         .orb { position: absolute; border-radius: 50%; filter: blur(60px); z-index: 0; opacity: 0.5; mix-blend-mode: screen; }
 
+        /* Sidenav active state indicator */
+        .nav-active { border-left: 3px solid #a855f7; background-color: rgba(24, 24, 27, 0.8); color: white !important; }
+        .faq-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out; }
+        .faq-content.is-open { grid-template-rows: 1fr; }
+        .faq-inner { overflow: hidden; }
+
+        /* Component Button Sizing Standard */
+        .btn-standard { padding: 6px 12px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 6px; line-height: 1; border-radius: 6px; transition: all 0.2s ease; }
+        
+        /* Flickity Carousel Custom Styling */
+        .flickity-button { background: rgba(24, 24, 27, 0.8) !important; color: white !important; transition: all 0.3s ease; }
+        .flickity-button:hover { background: rgba(168, 85, 247, 0.9) !important; transform: scale(1.1); }
+        .flickity-page-dots .dot { background: white !important; opacity: 0.25; width: 8px; height: 8px; margin: 0 6px; transition: all 0.3s ease; }
+        .flickity-page-dots .dot.is-selected { opacity: 1; background: #a855f7 !important; transform: scale(1.3); }
+        .carousel-cell { width: 100%; margin-right: 24px; }
+        @media (min-width: 768px) { .carousel-cell { width: 80%; } }
+        @media (min-width: 1024px) { .carousel-cell { width: 65%; } }
+
+        /* 2048 Tile Colors */
         .tile-2 { background-color: #3e3e4d; color: #ffffff; } .tile-4 { background-color: #4d4d66; color: #ffffff; }
         .tile-8 { background-color: #f2b179; color: #000000; font-weight: 900; } .tile-16 { background-color: #f59563; color: #ffffff; font-weight: 900; }
         .tile-32 { background-color: #f67c5f; color: #ffffff; font-weight: 900; } .tile-64 { background-color: #f65e3b; color: #ffffff; font-weight: 900; }
         .tile-128 { background-color: #edcf72; color: #000000; font-weight: 900; box-shadow: 0 0 5px #edcf72; }
         .tile-2048 { background-color: #e50914; color: #ffffff; font-weight: 900; box-shadow: 0 0 24px #e50914; }
-
-        .sidebar-link { display: flex; align-items: center; gap: 0.625rem; padding: 0.375rem 0.75rem; color: #a1a1aa; font-size: 0.75rem; font-weight: 600; border-radius: 0.5rem; transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .sidebar-link:hover { color: #ffffff; background-color: rgba(24, 24, 27, 0.8); border-left: 2px solid #a855f7; }
-        .sidebar-link i { font-size: 0.6875rem; width: 1rem; text-align: center; opacity: 0.7; }
-
-        .carousel-cell { width: 100%; max-width: 300px; margin-right: 15px; border-radius: 12px; }
-        .flickity-button { background: rgba(24, 24, 27, 0.8) !important; color: white !important; }
-        .flickity-button:hover { background: #8b5cf6 !important; }
-
-        #easter-egg-modal.hidden { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="min-h-screen flex flex-col justify-between pt-16">
 
     <div class="wave-container" id="landing-background">
         <div class="orb bg-indigo-600 w-64 h-64 top-[10%] left-[10%] animate-float"></div>
@@ -105,166 +113,618 @@
             </defs>
             <path class="wave-path" stroke="url(#grad1)" d="M0,400 C300,600 600,200 900,400 C1200,600 1440,300 1440,300"></path>
             <path class="wave-path" stroke="url(#grad1)" d="M0,420 C300,620 600,220 900,420 C1200,620 1440,320 1440,320"></path>
-            <path class="wave-path" stroke="url(#grad1)" d="M0,440 C300,640 600,240 900,440 C1200,640 1440,340 1440,340"></path>
         </svg>
     </div>
 
-    <header class="w-full fixed top-0 left-0 h-16 glass-nav z-50 px-6 lg:px-12 flex justify-between items-center transition-all duration-300">
-        <div class="flex items-center space-x-6">
-            <button id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" class="block lg:hidden w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white inner-widget rounded-lg transition-all shadow relative z-50">
-                <i class="fas fa-bars text-xs"></i>
-            </button>
-            <div onclick="handleLogoClick()" id="logo-trigger" class="flex items-center space-x-3 cursor-pointer group select-none">
+    <header class="fixed top-0 left-0 right-0 h-16 glass-nav border-b border-zinc-800 z-50 flex items-center justify-between w-full transition-all duration-300">
+        <div class="flex items-center h-full">
+            <div class="h-full flex items-center">
+                <button onclick="toggleSidebar()" class="h-full px-5 text-zinc-400 hover:text-white transition-colors flex items-center justify-center border-r border-zinc-800 focus:outline-none">
+                    <i class="fas fa-bars text-sm"></i>
+                </button>
+            </div>
+            <div onclick="handleLogoClick()" class="flex items-center space-x-3 cursor-pointer group select-none px-5 border-r border-zinc-800 h-full hover:bg-white/5 transition-colors">
                 <div class="w-8 h-8 bg-purple-600/10 border border-purple-500/30 rounded flex items-center justify-center transition-all group-hover:scale-105">
                     <i class="fas fa-bolt text-purple-500 text-sm"></i>
                 </div>
-                <span class="text-sm font-black tracking-widest uppercase text-white hidden sm:block">Section Thunder</span>
-            </div>
-        </div>
-        
-        <nav class="hidden md:flex items-center space-x-8 text-xs font-bold uppercase tracking-wider text-zinc-300">
-            <button onclick="switchViewEngine('home')" class="hover:text-purple-400 transition-colors">Home</button>
-            <button onclick="switchViewEngine('workspace')" class="hover:text-purple-400 transition-colors">Workspace</button>
-            <button onclick="switchViewEngine('arcade')" class="hover:text-purple-400 transition-colors">Arcade</button>
-        </nav>
-
-        <div class="flex items-center space-x-5">
-            <div class="hidden lg:flex flex-col items-end justify-center select-none cursor-default pr-2">
-                <div class="text-xs font-bold text-white leading-tight flex items-center space-x-1.5">
-                    <span class="opacity-80">🇵🇭</span> <span id="clock-ph" class="font-mono">--:--:--</span>
-                </div>
-                <div class="text-[10px] text-zinc-400 leading-tight flex items-center space-x-1 mt-0.5">
-                    <span class="opacity-60">🇯🇵</span> <span id="clock-jp" class="font-mono">--:--:--</span>
-                </div>
+                <span class="text-[13px] font-black tracking-widest uppercase text-white hidden sm:block">Section Thunder</span>
             </div>
             
-            <button onclick="startQuiz()" class="text-xs font-bold px-4 py-1.5 rounded-full border border-zinc-600 text-zinc-300 hover:border-purple-500 hover:text-purple-400 transition-all shadow-sm">
-                Quizmaster
+            <div class="hidden md:flex items-center ml-5 relative group">
+                <i class="fas fa-search absolute left-3 text-zinc-500 text-[11px] group-focus-within:text-purple-400 transition-colors"></i>
+                <input type="text" placeholder="Search directives or teachers..." class="w-64 bg-zinc-900/50 border border-zinc-700/50 rounded-md py-1.5 pl-8 pr-3 text-[12px] font-medium text-white focus:outline-none focus:border-purple-500 transition-all placeholder-zinc-500">
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3 px-5 h-full">
+            <button class="md:hidden w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded transition-colors">
+                <i class="fas fa-search text-[13px]"></i>
             </button>
+
+            <button onclick="switchViewEngine('workspace')" class="btn-standard bg-purple-600 text-white hover:bg-purple-500 shadow border border-purple-500 hidden sm:flex">
+                <i class="fas fa-plus text-[10px]"></i> Launch Workspace
+            </button>
+
+            <div class="h-6 w-px bg-zinc-800 mx-1 hidden sm:block"></div>
+
+            <div class="flex items-center space-x-1">
+                <button onclick="startQuiz()" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-purple-400 rounded transition-colors" title="Quizmaster">
+                    <i class="fas fa-graduation-cap text-[13px]"></i>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white rounded transition-colors relative" title="Notifications">
+                    <i class="fas fa-bell text-[13px]"></i>
+                    <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                </button>
+            </div>
+
+            <div class="h-6 w-px bg-zinc-800 mx-1"></div>
+
+            <div class="flex items-center space-x-3 pl-1">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-600 p-[2px] shadow-sm cursor-pointer">
+                    <img src="images/THUNDER.jpg" alt="User" class="w-full h-full rounded-full border border-black object-cover">
+                </div>
+                <a href="#" class="text-[12px] font-medium text-zinc-400 hover:text-red-400 transition-colors hidden lg:block">Logout</a>
+            </div>
         </div>
     </header>
             
-    <div id="landing-page-view" class="w-full flex flex-col items-center relative z-20 pt-16 min-h-[calc(100vh-4rem)] justify-center overflow-hidden">
-        <section class="w-full pt-24 pb-16 px-4 flex flex-col items-center relative z-10">
-            <div class="mb-8 relative flex items-center justify-center w-24 h-24 bg-purple-600/10 rounded-full border border-purple-500/30">
-                <i class="fas fa-bolt text-5xl text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]"></i>
-            </div>
-            <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-center text-white tracking-tighter leading-tight max-w-5xl mb-4 drop-shadow-lg">
-                Welcome to <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Section Thunder</span> Hub.
-            </h1>
-            <p class="text-sm sm:text-lg text-center font-medium max-w-2xl tracking-normal mb-10 drop-shadow-md text-zinc-400">
-                Your centralized operational command matrix. Track team metrics, compile daily analytics, and manage policy alignments.
-            </p>
+    <div class="flex flex-grow w-full relative z-20">
+        
+        <div id="sidebar-overlay" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden transition-opacity lg:hidden"></div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-4">
-                <button onclick="openAuthModal()" class="w-full sm:w-auto px-8 py-3.5 rounded-full border border-white text-white font-bold text-sm hover:bg-white hover:text-black transition-all shadow-lg tracking-wider uppercase">
-                    Sign Up / Login
+        <aside id="app-left-sidebar" class="fixed inset-y-0 left-0 w-[260px] bg-[#08080c]/95 backdrop-blur-xl border-r border-zinc-800 flex flex-col z-[60] transform -translate-x-full transition-transform duration-300 ease-in-out shadow-[10px_0_30px_rgba(0,0,0,0.5)] pt-16">
+            
+            <div class="flex-grow overflow-y-auto custom-scroll py-4 px-3 space-y-1">
+                
+                <button onclick="switchViewEngine('home')" class="sidebar-nav-btn nav-home w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md text-[13px] font-medium transition-all text-left mb-4 nav-active">
+                    <i class="fas fa-home w-4 text-center"></i> Home Overview
                 </button>
-                <a href="https://teacher.qqeng.com/" target="_blank" class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-sm transition-all shadow-lg hover:shadow-purple-500/25 tracking-wider uppercase text-center">
-                    Teacher Portal
-                </a>
-            </div>
-        </section>
-    </div>
-
-    <div id="app-workspace-view" class="hidden flex pt-16 min-h-[calc(100vh-4rem)] relative flex-grow w-full z-20">
-        <aside id="app-left-sidebar" class="fixed lg:static inset-y-0 left-0 w-72 glass-widget border-r-0 border-zinc-800 p-4 pt-20 lg:pt-4 flex flex-col justify-between z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto custom-scroll flex-shrink-0 shadow-2xl lg:shadow-none bg-[#08080c]/90">
-            <div class="space-y-6">
-                <div id="restricted-tools" class="opacity-50 pointer-events-none transition-opacity duration-300">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-purple-400 mb-2 px-1">Restricted Core Tools</h3>
-                    <nav class="space-y-0.5">
-                        <button onclick="switchViewEngine('workspace')" id="nav-btn-workspace" class="sidebar-nav-btn w-full flex items-center gap-2.5 px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg transition-colors text-left group">
-                            <i class="fas fa-briefcase text-[11px] w-4 text-center"></i> Daily Report Tool
-                        </button>
-                    </nav>
-
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-amber-500 mb-2 px-1 mt-6">Subnet Arcade</h3>
-                    <nav class="space-y-0.5">
-                        <button onclick="switchViewEngine('arcade', 'chess')" id="nav-btn-chess" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-chess-knight w-4 text-center"></i> Chess Core</span>
-                        </button>
-                        <button onclick="switchViewEngine('arcade', 'ttt')" id="nav-btn-ttt" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-border-all w-4 text-center"></i> Tic-Tac-Toe</span>
-                        </button>
-                        <button onclick="switchViewEngine('arcade', 'm2048')" id="nav-btn-m2048" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-calculator w-4 text-center"></i> 2048 Matrix</span>
-                        </button>
-                        <button onclick="switchViewEngine('arcade', 'tetris')" id="nav-btn-tetris" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-cubes w-4 text-center"></i> Tetris Cascade</span>
-                        </button>
-                        <button onclick="triggerEasterEgg('coin')" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-coins w-4 text-center"></i> Flip Coin</span>
-                        </button>
-                        <button onclick="triggerEasterEgg('die')" class="sidebar-nav-btn w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-zinc-800/60 text-xs font-semibold rounded-lg text-left transition-all">
-                            <span class="flex items-center gap-2.5"><i class="fas fa-dice-d6 w-4 text-center"></i> Roll Die</span>
-                        </button>
-                    </nav>
-                </div>
-
-                <div class="flex-grow flex flex-col min-h-0 pt-4 border-t border-zinc-800">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 px-1">Operational Directory</h3>
-                    <div class="overflow-y-auto custom-scroll pr-1 flex-grow space-y-4">
-                        <nav class="space-y-0.5 flex flex-col">
-                            <a href="https://teacher.qqeng.com/" target="_blank" class="sidebar-link"><i class="fas fa-chalkboard-user"></i> Teacher Dashboard</a>
-                            <a href="https://en.qqeng.com/q/searcher/teachers/" target="_blank" class="sidebar-link"><i class="fas fa-users"></i> View Teachers</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/base/DehxbTfBJawDv6sbYtGj7sjmphh?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-list"></i> Overall Masterlist</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/file/TTy1bsBjXoixB4xCvVij7HBlpId" target="_blank" class="sidebar-link"><i class="fas fa-book"></i> Book of policy</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp6l5Q2fGo3uKh2bV2yT7y1g" target="_blank" class="sidebar-link"><i class="fas fa-user-tie"></i> Ask HR form</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp3h6CoiwmreSsaPi0HcZe3p" target="_blank" class="sidebar-link"><i class="fas fa-right-left"></i> Class Substitution</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/base/NH1IbfYg1aHfy6sgqtgjKasipJv?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-ranking-star"></i> Monthly Ranking</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/base/REU3bFA8vaIa71sdnAwj7bVAprg?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-star-half-stroke"></i> Low star ratings</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/sheets/Xgiis8htahNJGjtrWfujDlYlpBh?from=from_copylink&sheet=UKpEeu" target="_blank" class="sidebar-link"><i class="fas fa-clock"></i> OT/HOL File</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp87b8pdyH1Ktkvswq0Gxw5d" target="_blank" class="sidebar-link"><i class="fas fa-ticket"></i> Concern Ticketing</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp9GmYgcuVn5fo1McMOsmJ3b?from=navigation" target="_blank" class="sidebar-link"><i class="fas fa-headset"></i> QQ IT Ticketing</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp2U1j6vav7kT1fGCDpHFOHf?from=navigation" target="_blank" class="sidebar-link"><i class="fas fa-scale-balanced"></i> Dispute link</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjphJDA1GL88P77VEEsmIfRoe" target="_blank" class="sidebar-link"><i class="fas fa-desktop"></i> Online Dashboard Concern</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/BCY7w4WJGiceBHkLiYijGwp9pFc?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-chart-pie"></i> Eval & Grade rules</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/WzyGwiKMdiOGT4kU5zVj6YeRpPh?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-calendar-check"></i> Quarterly Point Eval</a>
-                            <a href="https://teacher.qqeng.com/campus/o_t/o_t_demands/list?preset=new" target="_blank" class="sidebar-link"><i class="fas fa-business-time"></i> OT link</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpfkbQ7T57GspLfsIhRraFLd" target="_blank" class="sidebar-link"><i class="fas fa-file-signature"></i> ELTS Teacher Apps</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpsTLLzZz7mG1oUxv6Jf4CSg" target="_blank" class="sidebar-link"><i class="fas fa-file-contract"></i> FTL application</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/sheets/JYo0sf3Y3hDMcetSJG6jO36vpMg?sheet=plgC4S" target="_blank" class="sidebar-link"><i class="fas fa-umbrella-beach"></i> BEACHFRONT DORM</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpfvRi6i9MZiIHaHWV8YjReh" target="_blank" class="sidebar-link"><i class="fas fa-money-bill-wave"></i> PFI gross dispute</a>
-                            
-                            <div class="pt-2"></div>
-                            <h3 class="text-[9px] font-black uppercase tracking-widest text-purple-400 pl-2">Exclusive For Thunder Members</h3>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/P1zqw6Ysmim7VEklwrGjOnZIpce?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-circle-question"></i> FAQs</a>
-                            <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/NGTNwy8vri7xF4k0pdej8AQlpXb?from=from_copylink" target="_blank" class="sidebar-link"><i class="fas fa-calculator"></i> PFI COUNTS</a>
-                        </nav>
+                
+                <div class="text-[10px] font-black uppercase tracking-widest text-zinc-600 px-3 py-2 mt-2">Operational Directory</div>
+                
+                <div class="sidebar-accordion">
+                    <button class="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors" onclick="toggleNavSubmenu('nav-dash')">
+                        <div class="flex items-center gap-3"><i class="fas fa-chart-pie w-4 text-center"></i><span class="text-[13px] font-medium">Dashboards & Lists</span></div>
+                        <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" id="icon-nav-dash"></i>
+                    </button>
+                    <div id="nav-dash" class="nav-submenu hidden flex-col pl-10 pr-3 py-1 space-y-1 border-l border-zinc-800 ml-5 mt-1">
+                        <a href="https://teacher.qqeng.com/" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Teacher Dashboard</a>
+                        <a href="https://en.qqeng.com/q/searcher/teachers/" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">View Teachers</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/DehxbTfBJawDv6sbYtGj7sjmphh?from=from_copylink" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Overall Masterlist</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/NH1IbfYg1aHfy6sgqtgjKasipJv?from=from_copylink" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Monthly Ranking</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/base/REU3bFA8vaIa71sdnAwj7bVAprg?from=from_copylink" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Low Star Ratings</a>
                     </div>
                 </div>
+
+                <div class="sidebar-accordion">
+                    <button class="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors" onclick="toggleNavSubmenu('nav-hr')">
+                        <div class="flex items-center gap-3"><i class="fas fa-file-signature w-4 text-center"></i><span class="text-[13px] font-medium">HR & Approvals</span></div>
+                        <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" id="icon-nav-hr"></i>
+                    </button>
+                    <div id="nav-hr" class="nav-submenu hidden flex-col pl-10 pr-3 py-1 space-y-1 border-l border-zinc-800 ml-5 mt-1">
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/file/TTy1bsBjXoixB4xCvVij7HBlpId" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Book of Policy</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp6l5Q2fGo3uKh2bV2yT7y1g" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Ask HR Form</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp3h6CoiwmreSsaPi0HcZe3p" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Class Substitution</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/sheets/Xgiis8htahNJGjtrWfujDlYlpBh?from=from_copylink&sheet=UKpEeu" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">OT/HOL File</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpfkbQ7T57GspLfsIhRraFLd" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">ELTS Teacher Apps</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpsTLLzZz7mG1oUxv6Jf4CSg" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">FTL Application</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/sheets/JYo0sf3Y3hDMcetSJG6jO36vpMg?sheet=plgC4S" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Beachfront Dorm</a>
+                    </div>
+                </div>
+
+                <div class="sidebar-accordion">
+                    <button class="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors group" onclick="toggleNavSubmenu('nav-tickets')">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-ticket w-4 text-center"></i><span class="text-[13px] font-medium">Ticketing</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="flex items-center justify-center w-[18px] h-[18px] rounded-full bg-purple-600 text-white text-[9px] font-bold leading-none">3</span>
+                            <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" id="icon-nav-tickets"></i>
+                        </div>
+                    </button>
+                    <div id="nav-tickets" class="nav-submenu hidden flex-col pl-10 pr-3 py-1 space-y-1 border-l border-zinc-800 ml-5 mt-1">
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp87b8pdyH1Ktkvswq0Gxw5d" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Concern Ticketing</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp9GmYgcuVn5fo1McMOsmJ3b?from=navigation" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">QQ IT Ticketing</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjp2U1j6vav7kT1fGCDpHFOHf?from=navigation" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Dispute Link</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjphJDA1GL88P77VEEsmIfRoe" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Online Dash Concern</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/share/base/form/shrjpfvRi6i9MZiIHaHWV8YjReh" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">PFI Gross Dispute</a>
+                    </div>
+                </div>
+
+                <div class="sidebar-accordion">
+                    <button class="w-full flex items-center justify-between px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md transition-colors" onclick="toggleNavSubmenu('nav-eval')">
+                        <div class="flex items-center gap-3"><i class="fas fa-scale-balanced w-4 text-center"></i><span class="text-[13px] font-medium">Eval & Rules</span></div>
+                        <i class="fas fa-chevron-down text-[10px] transition-transform duration-300" id="icon-nav-eval"></i>
+                    </button>
+                    <div id="nav-eval" class="nav-submenu hidden flex-col pl-10 pr-3 py-1 space-y-1 border-l border-zinc-800 ml-5 mt-1">
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/BCY7w4WJGiceBHkLiYijGwp9pFc?from=from_copylink" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Eval & Grade Rules</a>
+                        <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/WzyGwiKMdiOGT4kU5zVj6YeRpPh?from=from_copylink" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">Quarterly Point Eval</a>
+                        <a href="https://teacher.qqeng.com/campus/o_t/o_t_demands/list?preset=new" target="_blank" class="text-[12px] text-zinc-500 hover:text-purple-400 py-1.5 block leading-tight">OT Link</a>
+                    </div>
+                </div>
+
+                <div class="my-4 border-t border-zinc-800"></div>
+                <div class="text-[10px] font-black uppercase tracking-widest text-amber-500 px-3 py-2 flex items-center justify-between">
+                    <span>Subnet Arcade</span> <i class="fas fa-gamepad"></i>
+                </div>
+
+                <button onclick="switchViewEngine('arcade', 'chess')" class="sidebar-nav-btn nav-arcade w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-amber-400 hover:bg-white/5 rounded-md text-[13px] font-medium transition-all text-left">
+                    <i class="fas fa-chess-knight w-4 text-center"></i> Chess Core
+                </button>
+                <button onclick="switchViewEngine('arcade', 'ttt')" class="sidebar-nav-btn nav-arcade w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-amber-400 hover:bg-white/5 rounded-md text-[13px] font-medium transition-all text-left">
+                    <i class="fas fa-border-all w-4 text-center"></i> Tic-Tac-Toe
+                </button>
+                <button onclick="switchViewEngine('arcade', 'm2048')" class="sidebar-nav-btn nav-arcade w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-amber-400 hover:bg-white/5 rounded-md text-[13px] font-medium transition-all text-left">
+                    <i class="fas fa-calculator w-4 text-center"></i> 2048 Matrix
+                </button>
+                <button onclick="switchViewEngine('arcade', 'tetris')" class="sidebar-nav-btn nav-arcade w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-amber-400 hover:bg-white/5 rounded-md text-[13px] font-medium transition-all text-left">
+                    <i class="fas fa-cubes w-4 text-center"></i> Tetris Cascade
+                </button>
+
+            </div>
+
+            <div class="border-t border-zinc-800 py-3 px-3 space-y-1 bg-zinc-900/30">
+                <div class="text-[9px] font-black uppercase tracking-widest text-purple-400 px-3 pb-1">Thunder Exclusives</div>
+                <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/P1zqw6Ysmim7VEklwrGjOnZIpce?from=from_copylink" target="_blank" class="w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md text-[13px] font-medium transition-all">
+                    <i class="fas fa-circle-question w-4 text-center"></i> Leader FAQs
+                </a>
+                <a href="https://zp9fxvayn6g.jp.larksuite.com/wiki/NGTNwy8vri7xF4k0pdej8AQlpXb?from=from_copylink" target="_blank" class="w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-md text-[13px] font-medium transition-all">
+                    <i class="fas fa-calculator w-4 text-center"></i> PFI Counts
+                </a>
             </div>
         </aside>
 
-        <div class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full overflow-hidden bg-[#08080c]/60 backdrop-blur-md rounded-l-3xl border-l border-zinc-800 custom-scroll overflow-y-auto">
+        <main class="flex-grow w-full flex flex-col items-center relative z-20 min-h-[calc(100vh-4rem)] transition-all duration-300 overflow-x-hidden">
             
-            <div id="workspace-container" class="hidden animate-fade-in space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div id="landing-page-view" class="w-full flex flex-col items-center">
+                
+                <section class="w-full px-4 py-24 md:py-32 flex flex-col items-center justify-center relative bg-transparent text-center">
+                    <div class="flex items-center gap-2 px-4 py-1.5 rounded-full border border-purple-500/30 bg-purple-900/20 text-purple-300 text-[11px] font-black uppercase tracking-widest mb-8 shadow-sm">
+                        <i class="fas fa-sparkles"></i> System Upgrade Active
+                    </div>
                     
-                    <div class="lg:col-span-7 space-y-6">
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden">
-                            <div class="border-b border-zinc-800 inner-widget px-4 py-3 flex flex-col space-y-2.5">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                        <i class="fas fa-list-check text-purple-500"></i> Daily Core Responsibilities
-                                    </span>
-                                    <span id="task-progress-text" class="text-[10px] font-mono text-zinc-400">0% Complete</span>
-                                </div>
-                                <div class="w-full inner-widget h-1.5 rounded-full overflow-hidden shadow-inner">
-                                    <div id="task-progress-bar" class="bg-purple-600 h-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(168,85,247,0.8)]" style="width: 0%"></div>
+                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight max-w-4xl mb-6 drop-shadow-lg">
+                        Operational Control for <br class="hidden sm:block" />
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500">Section Thunder.</span>
+                    </h1>
+                    
+                    <p class="text-base md:text-lg text-zinc-400 font-medium max-w-2xl leading-relaxed mb-10 drop-shadow-md">
+                        Your centralized command matrix for leading 300+ members. Standardize communications, ensure operational efficiency, and elevate team accountability in real time.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-4 mb-16 w-full justify-center max-w-md">
+                        <button onclick="switchViewEngine('workspace')" class="w-full sm:w-auto btn-standard bg-purple-600 hover:bg-purple-500 text-white shadow-lg border border-purple-500">
+                            Launch Hub
+                        </button>
+                        <a href="https://teacher.qqeng.com/" target="_blank" class="w-full sm:w-auto btn-standard bg-transparent border border-zinc-600 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all">
+                            Teacher Portal
+                        </a>
+                    </div>
+                    
+                    <div class="w-full max-w-7xl px-4 mx-auto relative group">
+                        <div class="main-carousel" data-flickity='{ "cellAlign": "center", "contain": true, "wrapAround": true, "autoPlay": 3500, "lazyLoad": 2, "prevNextButtons": true, "pageDots": true, "pauseAutoPlayOnHover": true }'>
+                            
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1600&q=80" alt="Team Synergy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-purple-400 mb-2 block">Synergy Event</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Annual Thunder Retreat</h3>
                                 </div>
                             </div>
-                            <div class="p-4 space-y-3 max-h-[300px] overflow-y-auto custom-scroll" id="master-todo-container"></div>
-                            <div class="p-3 inner-widget border-t border-zinc-800 flex items-center justify-between">
-                                <div class="flex items-center space-x-2 flex-grow">
-                                    <input type="text" id="new-task-input" placeholder="Type a new task to track..." class="w-full text-xs px-3 py-2 bg-transparent border border-zinc-700 rounded-lg focus:outline-none focus:border-purple-500 text-white shadow-inner">
-                                    <button onclick="createNewCustomTask()" class="text-xs font-bold inner-widget text-white px-4 py-2 rounded-lg hover:text-purple-400 transition-colors shrink-0 shadow border border-zinc-700">Add Task</button>
+                            
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80" alt="Collaboration" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-amber-400 mb-2 block">Collaboration</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Cross-Cluster Planning</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=1600&q=80" alt="Strategic Meeting" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-emerald-400 mb-2 block">Strategy</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Q3 Goal Setting</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1600&q=80" alt="Team Discussion" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-400 mb-2 block">Workshop</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Operational Excellence</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1600&q=80" alt="Team Huddle" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-purple-400 mb-2 block">Team Building</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Morning Standup Alignments</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=1600&q=80" alt="Conference" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-red-400 mb-2 block">Leadership</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Regional ESL Conference</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1600&q=80" alt="High Five" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-amber-500 mb-2 block">Milestones</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Celebrating Target Hits</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80" alt="Tech Event" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-indigo-400 mb-2 block">Innovation</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Ed-Tech Symposium</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?auto=format&fit=crop&w=1600&q=80" alt="Group Outing" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-emerald-400 mb-2 block">Culture</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Company Outing 2026</h3>
+                                </div>
+                            </div>
+
+                            <div class="carousel-cell rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 relative group aspect-[16/9] md:aspect-[21/9]">
+                                <img data-flickity-lazyload="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1600&q=80" alt="Diverse Team" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute inset-0 bg-gradient-to-t from-[#040406] via-transparent to-transparent opacity-90 pointer-events-none"></div>
+                                <div class="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-10 z-10">
+                                    <span class="text-[10px] md:text-xs font-black uppercase tracking-widest text-purple-400 mb-2 block">Community</span>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white leading-tight">Global Instructor Network</h3>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <div class="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent my-8"></div>
+
+                <section class="w-full max-w-7xl mx-auto px-6 py-16">
+                    <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
+                        <div class="flex-col space-y-3">
+                            <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">Thunder Command Structure</h2>
+                            <p class="text-zinc-400 text-sm md:text-base max-w-xl">Meticulously driving operational efficiency, staff morale, and academic excellence across all clusters.</p>
+                        </div>
+                        <button class="btn-standard border border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 shrink-0">
+                            View Full Directory <i class="fas fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-amber-500 to-purple-600 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/THUNDER.jpg" alt="Thunder" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-crown text-[9px]"></i> Supervisor
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Thunder</h3>
+                            <p class="text-xs text-zinc-400 mb-5">Apex Strategic Operations</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-blue-500 to-zinc-600 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/CHARYL.jpg" alt="Charyl" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-layer-group text-[9px]"></i> HTL - Cluster
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Charyl</h3>
+                            <p class="text-xs text-zinc-400 mb-5">Cluster Leadership</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-emerald-500 to-zinc-600 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/SOLOVEY.jpg" alt="Solovey" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-layer-group text-[9px]"></i> HTL - Cluster
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Solovey</h3>
+                            <p class="text-xs text-zinc-400 mb-5">Cluster Leadership</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-rose-500 to-zinc-600 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/TOBIN.jpg" alt="Tobin" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-layer-group text-[9px]"></i> HTL - Cluster
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Tobin</h3>
+                            <p class="text-xs text-zinc-400 mb-5">Cluster Leadership</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-zinc-800 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/CHUCK.jpg" alt="Chuck" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-users text-[9px]"></i> Team Leader
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Chuck</h3>
+                            <p class="text-xs text-zinc-500 mb-5">Cluster Charyl</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-zinc-800 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/MONTOYA.jpg" alt="Montoya" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-users text-[9px]"></i> Team Leader
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Montoya</h3>
+                            <p class="text-xs text-zinc-500 mb-5">Cluster Solovey</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-zinc-800 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/YUSAF.jpg" alt="Yusaf" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-users text-[9px]"></i> Team Leader
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Yusaf</h3>
+                            <p class="text-xs text-zinc-500 mb-5">Cluster Tobin</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col items-center text-center group">
+                            <div class="w-24 h-24 rounded-full p-1 bg-zinc-800 mb-4 shadow-lg transition-transform group-hover:scale-105">
+                                <img src="images/DELTA.jpg" alt="Delta" class="w-full h-full object-cover rounded-full border-[3px] border-[#040406]">
+                            </div>
+                            <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                                <i class="fas fa-users text-[9px]"></i> Team Leader
+                            </div>
+                            <h3 class="text-lg font-bold text-white leading-tight mb-1">Delta</h3>
+                            <p class="text-xs text-zinc-500 mb-5">Cluster Solovey</p>
+                            <button class="btn-standard border border-zinc-700 text-zinc-300 hover:border-purple-500 hover:text-purple-400">
+                                <i class="fas fa-envelope"></i> Contact Me
+                            </button>
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="w-full h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent my-8"></div>
+
+                <section class="w-full max-w-4xl mx-auto px-6 py-16">
+                    <h2 class="text-3xl md:text-4xl font-black text-center text-white mb-10 tracking-tight">Standard Operational FAQs</h2>
+                    
+                    <div class="flex flex-col space-y-4 w-full">
+                        
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-1')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">What is the mandatory retirement age?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-1"></i>
+                            </button>
+                            <div id="faq-1" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        According to Section 23.1, the mandatory retirement age for employees is 60 years old. Extensions are only possible with express company approval.
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden relative">
-                            <div class="border-b border-zinc-500/20 inner-widget px-4 py-3 flex items-center justify-between select-none">
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-2')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">What is the resignation notice period?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-2"></i>
+                            </button>
+                            <div id="faq-2" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        Teaching staff must tender their resignation at least <strong>22 calendar days</strong> before the effective date. Non-teaching staff must provide a <strong>30-day notice</strong> to ensure a smooth transition of duties.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-3')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">How many days of Service Incentive Leave (SIL) are provided?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-3"></i>
+                            </button>
+                            <div id="faq-3" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        SIL is a yearly benefit of 5 days with pay after rendering at least one year of service. Unused SIL can be converted to cash.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-4')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">What constitutes a major offense?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-4"></i>
+                            </button>
+                            <div id="faq-4" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        Major offenses (like swearing at a student, misusing company property, or personal relationships with students) have no prescription period. Outright dismissal is often meted out for the first offense.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-5')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">How is the ATI (Attendance Incentive) calculated?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-5"></i>
+                            </button>
+                            <div id="faq-5" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        ATI follows an "All or nothing" scheme for perfect attendance. Maintaining perfect attendance adds a cumulative base of PHP 300 per cut-off, up to 6 months. The Annual ATI reward is PHP 3000.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-widget rounded-xl border border-zinc-800 overflow-hidden">
+                            <button class="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-zinc-800/50" onclick="toggleFaq('faq-6')">
+                                <div class="flex items-center gap-4">
+                                    <i class="fas fa-circle-question text-purple-500"></i>
+                                    <span class="font-bold text-sm md:text-base text-white">What are the assessment timeline requirements?</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-zinc-500 transition-transform duration-300" id="icon-faq-6"></i>
+                            </button>
+                            <div id="faq-6" class="faq-content">
+                                <div class="faq-inner px-5 pb-5 pt-0 ml-8">
+                                    <p class="text-sm text-zinc-400 leading-relaxed max-w-2xl">
+                                        Start your assessment almost at the end of class time. Ensure you verbally preview the assessment with the student before ending the class on time. Any additional notes must be placed at the <em>topmost</em> part of the Teacher's Note.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+                
+                <footer class="w-full max-w-5xl mx-auto px-6 py-12 mt-12 flex flex-col items-center justify-center text-center relative z-10">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-bolt text-purple-500 text-lg"></i>
+                        <span class="text-lg font-black tracking-widest uppercase text-white">Section Thunder</span>
+                    </div>
+                    
+                    <p class="text-sm text-zinc-400 max-w-md mb-8 leading-relaxed">
+                        Leading the charge in ESL operational efficiency, teacher accountability, and educational excellence worldwide.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 mb-8">
+                        <a href="#" class="text-[13px] font-medium text-zinc-400 hover:text-white transition-colors">Documentation</a>
+                        <a href="#" class="text-[13px] font-medium text-zinc-400 hover:text-white transition-colors">Policy Hub</a>
+                        <a href="#" class="text-[13px] font-medium text-zinc-400 hover:text-white transition-colors">Support Tickets</a>
+                        <a href="#" class="text-[13px] font-medium text-zinc-400 hover:text-white transition-colors">Teacher Portal</a>
+                    </div>
+                    
+                    <p class="text-[11px] text-zinc-600 font-medium">
+                        &copy; 2026 Section Thunder Operations Hub. All rights reserved.
+                    </p>
+                </footer>
+            </div>
+
+            <div id="app-workspace-view" class="hidden w-full flex-grow p-4 md:p-6 lg:p-10 mx-auto max-w-7xl animate-fade-in relative z-20">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <div class="lg:col-span-7 space-y-6">
+                        
+                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden border border-zinc-800">
+                            <div class="border-b border-zinc-800 inner-widget px-5 py-4 flex items-center justify-between">
+                                <div>
+                                    <span class="text-[11px] font-black uppercase tracking-widest text-white flex items-center gap-2">
+                                        <i class="fas fa-clipboard-check text-purple-500"></i> In-Class Protocol / Reminders
+                                    </span>
+                                    <p class="text-xs text-zinc-400 mt-1">Ensure strict adherence to these pedagogical steps for every session.</p>
+                                </div>
+                            </div>
+                            <div class="p-5 bg-zinc-900/30">
+                                <ul class="space-y-4" id="teachers-reminder-list">
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Maintain Professionalism at All Times:</strong> Stay focused, follow classroom standards, and present yourself professionally in every class.</span>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Zero Tolerance for Bullying, Harassment, or Cheating:</strong> Any form of bullying, disrespect, or dishonest behavior toward students or colleagues is strictly prohibited.</span>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Ensure Accurate Assessments:</strong> Always double-check your assessment before submitting to ensure accuracy and correctness.</span>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Verify Lesson Materials Before Starting the Class:</strong> Always confirm the correct curriculum, unit number, lesson number, and slide number to avoid teaching the wrong material.</span>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <div class="text-sm text-zinc-300 flex-grow">
+                                            <strong>Follow Correct Class Tagging Guidelines:</strong>
+                                            <ul class="mt-2 space-y-1 text-xs bg-black/20 p-2.5 rounded border border-zinc-800 shadow-inner">
+                                                <li class="flex items-start gap-2 mb-2"><span class="text-emerald-400 font-bold shrink-0">✔ TAG AS COMPLETE when:</span> 25-min class lasts 20 minutes or more | 50-min class lasts 40 minutes or more</li>
+                                                <li class="flex flex-col gap-1 border-t border-zinc-800 pt-2">
+                                                    <span class="text-red-400 font-bold">❌ TAG AS INCOMPLETE when:</span>
+                                                    <span class="ml-4 text-zinc-400">- Student absence with notice</span>
+                                                    <span class="ml-4 text-zinc-400">- Absence without notice</span>
+                                                    <span class="ml-4 text-zinc-400">- Class duration is below the required minutes (20/40), regardless of reason</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Check Audio, Camera, and Classroom Energy:</strong> Test your devices before class, keep your camera properly positioned, and start every lesson with a smile to create a welcoming learning environment.</span>
+                                    </li>
+                                    <li class="flex items-start gap-3">
+                                        <div class="w-5 h-5 rounded border border-purple-500/50 bg-purple-900/20 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-check text-purple-400 text-[10px]"></i></div>
+                                        <span class="text-sm text-zinc-300"><strong>Privacy and Conflict of Interest Policy:</strong> To maintain professional standards, teachers must refrain from disclosing personal contact details or social media profiles to students. Additionally, providing private tutoring or lessons to current students is strictly prohibited. Non-compliance with these boundary guidelines will result in formal disciplinary action.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden relative border border-zinc-800">
+                            <div class="border-b border-zinc-800 inner-widget px-4 py-3 flex items-center justify-between select-none">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                                     <i class="fas fa-calendar-days text-purple-500"></i> Operational Calendar
                                 </span>
@@ -274,95 +734,21 @@
                                     <button onclick="changeMonth(1)" class="p-1.5 text-zinc-400 hover:text-purple-500 rounded transition-colors inner-widget"><i class="fas fa-chevron-right text-[10px]"></i></button>
                                 </div>
                             </div>
-                            <div class="p-4">
-                                <div id="interactive-calendar-grid" class="grid grid-cols-7 border-t border-l border-zinc-500/20 text-center select-none shadow-inner inner-widget rounded-lg overflow-hidden"></div>
+                            <div class="p-4 bg-zinc-900/20">
+                                <div id="interactive-calendar-grid" class="grid grid-cols-7 border-t border-l border-zinc-700/50 text-center select-none shadow-inner inner-widget rounded-lg overflow-hidden"></div>
                             </div>
                             
-                            <div id="calendar-modal" class="hidden absolute inset-0 glass-nav backdrop-blur-md z-10 p-6 flex flex-col justify-center border-t border-zinc-500/20">
-                                <div class="flex items-center justify-between mb-4 border-b border-zinc-500/20 pb-2">
+                            <div id="calendar-modal" class="hidden absolute inset-0 glass-nav backdrop-blur-md z-10 p-6 flex flex-col justify-center border-t border-zinc-800">
+                                <div class="flex items-center justify-between mb-4 border-b border-zinc-800 pb-2">
                                     <h4 class="text-sm font-bold tracking-tight text-white">
                                         Notes for: <span id="target-modal-date-label" class="text-purple-500 ml-1"></span>
                                     </h4>
                                     <button onclick="closeCalendarModal()" class="text-zinc-400 hover:text-red-500 text-lg"><i class="fas fa-times"></i></button>
                                 </div>
-                                <textarea id="calendar-task-title" placeholder="Add specific operational notes or events here..." class="w-full flex-grow text-sm p-4 inner-widget border border-zinc-500/30 text-white rounded-lg focus:outline-none focus:border-purple-500 shadow-inner mb-4 resize-none custom-scroll"></textarea>
+                                <textarea id="calendar-task-title" placeholder="Add specific operational notes or events here..." class="w-full flex-grow text-sm p-4 bg-[#040406] border border-zinc-700 text-white rounded-lg focus:outline-none focus:border-purple-500 shadow-inner mb-4 resize-none custom-scroll"></textarea>
                                 <div class="flex gap-2">
-                                    <button onclick="saveCalendarReminder()" class="flex-grow text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-lg shadow transition-colors">Save Event Notes</button>
-                                    <button onclick="closeCalendarModal()" class="text-xs font-bold inner-widget text-white px-6 py-3 rounded-lg shadow transition-colors border border-zinc-500/30">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden">
-                            <div class="border-b border-zinc-800 inner-widget px-4 py-3">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                    <i class="fas fa-sitemap text-purple-500"></i> Thunder Section Hierarchy
-                                </span>
-                            </div>
-                            <div class="p-4 py-6">
-                                <div class="carousel w-full" data-flickity='{ "cellAlign": "left", "contain": true, "pageDots": true, "wrapAround": true, "autoPlay": 4000 }'>
-                                    
-                                    <div class="carousel-cell glass-widget p-5 border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.15)]">
-                                        <div class="flex items-center gap-4 mb-3">
-                                            <div class="w-14 h-14 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-amber-500 to-purple-600 shadow-lg relative">
-                                                <img src="thunder.jpg" alt="Supervisor Thunder" class="w-full h-full object-cover rounded-full border-2 border-[#08080c]">
-                                                <div class="absolute -bottom-1 -right-1 bg-amber-500 w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#08080c]">
-                                                    <i class="fas fa-crown text-[9px] text-black"></i>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-black text-white text-[11px] uppercase tracking-wider mb-0.5">Supervisor</h4>
-                                                <p class="text-base font-bold text-purple-400 leading-none">Thunder</p>
-                                            </div>
-                                        </div>
-                                        <p class="text-[10px] text-zinc-400 leading-tight border-t border-zinc-800 pt-2.5">Apex Leadership & Strategic Operations</p>
-                                    </div>
-
-                                    <div class="carousel-cell inner-widget p-5 border border-zinc-700/50">
-                                        <div class="flex items-center gap-4 mb-3">
-                                            <div class="w-14 h-14 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-blue-500 to-zinc-600 shadow-lg">
-                                                <img src="charyl.jpg" alt="HTL Charyl" class="w-full h-full object-cover rounded-full border-2 border-[#08080c]">
-                                            </div>
-                                            <div>
-                                                <h4 class="font-black text-white text-[11px] uppercase tracking-wider mb-0.5">Cluster Charyl</h4>
-                                                <p class="text-base font-bold text-blue-400 leading-none">HTL: Charyl</p>
-                                            </div>
-                                        </div>
-                                        <div class="text-[10px] text-zinc-400 leading-relaxed border-t border-zinc-800 pt-2.5">
-                                            <strong class="text-white/70">TLs:</strong> Chuck, Diocel, Vortex, Robreda, Sherlock, Paladius
-                                        </div>
-                                    </div>
-
-                                    <div class="carousel-cell inner-widget p-5 border border-zinc-700/50">
-                                        <div class="flex items-center gap-4 mb-3">
-                                            <div class="w-14 h-14 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-emerald-500 to-zinc-600 shadow-lg">
-                                                <img src="solovey.jpg" alt="HTL Solovey" class="w-full h-full object-cover rounded-full border-2 border-[#08080c]">
-                                            </div>
-                                            <div>
-                                                <h4 class="font-black text-white text-[11px] uppercase tracking-wider mb-0.5">Cluster Solovey</h4>
-                                                <p class="text-base font-bold text-emerald-400 leading-none">HTL: Solovey</p>
-                                            </div>
-                                        </div>
-                                        <div class="text-[10px] text-zinc-400 leading-relaxed border-t border-zinc-800 pt-2.5">
-                                            <strong class="text-white/70">TLs:</strong> Montoya, Delta, Ayden, Batid, Constantin, Sneasel
-                                        </div>
-                                    </div>
-
-                                    <div class="carousel-cell inner-widget p-5 border border-zinc-700/50">
-                                        <div class="flex items-center gap-4 mb-3">
-                                            <div class="w-14 h-14 shrink-0 rounded-full p-0.5 bg-gradient-to-tr from-rose-500 to-zinc-600 shadow-lg">
-                                                <img src="tobin.jpg" alt="HTL Tobin" class="w-full h-full object-cover rounded-full border-2 border-[#08080c]">
-                                            </div>
-                                            <div>
-                                                <h4 class="font-black text-white text-[11px] uppercase tracking-wider mb-0.5">Cluster Tobin</h4>
-                                                <p class="text-base font-bold text-rose-400 leading-none">HTL: Tobin</p>
-                                            </div>
-                                        </div>
-                                        <div class="text-[10px] text-zinc-400 leading-relaxed border-t border-zinc-800 pt-2.5">
-                                            <strong class="text-white/70">TLs:</strong> Yusaf, Icesid, Raelynn, Staccato, Fugerei, Bey
-                                        </div>
-                                    </div>
-
+                                    <button onclick="saveCalendarReminder()" class="flex-grow btn-standard bg-purple-600 hover:bg-purple-500 text-white">Save Event Notes</button>
+                                    <button onclick="closeCalendarModal()" class="btn-standard border border-zinc-700 text-white hover:bg-zinc-800">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -371,78 +757,38 @@
 
                     <div class="lg:col-span-5 space-y-6">
                         
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden flex flex-col">
+                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden flex flex-col border border-zinc-800">
                             <div class="border-b border-zinc-800 inner-widget px-4 py-2.5 flex items-center justify-between select-none">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                                     <i class="fas fa-stopwatch text-purple-500"></i> Focus Protocol (Pomodoro)
                                 </span>
                                 <span id="pomodoro-mode-badge" class="text-[9px] px-2 py-0.5 rounded bg-purple-600/20 text-purple-400 font-bold tracking-wider">WORK MODE</span>
                             </div>
-                            <div class="p-6 flex flex-col items-center justify-center space-y-4">
-                                <div id="pomodoro-time-display" class="text-5xl font-mono font-black text-white tracking-tighter drop-shadow-md">
+                            <div class="p-8 flex flex-col items-center justify-center space-y-6 bg-zinc-900/20">
+                                <div id="pomodoro-time-display" class="text-6xl font-mono font-black text-white tracking-tighter drop-shadow-md">
                                     25:00
                                 </div>
-                                <div class="flex gap-3 w-full">
-                                    <button onclick="togglePomodoro()" id="pomodoro-start-btn" class="flex-grow py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase rounded-lg transition-all shadow">Start</button>
-                                    <button onclick="resetPomodoro()" class="px-4 py-2 inner-widget border border-zinc-700 hover:border-zinc-500 text-white text-xs font-bold uppercase rounded-lg transition-all shadow"><i class="fas fa-rotate-right"></i></button>
-                                    <button onclick="switchPomodoroMode()" class="px-4 py-2 inner-widget border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white text-xs font-bold uppercase rounded-lg transition-all shadow" title="Toggle Work/Break"><i class="fas fa-mug-hot"></i></button>
+                                <div class="flex gap-3 w-full max-w-xs">
+                                    <button onclick="togglePomodoro()" id="pomodoro-start-btn" class="flex-grow btn-standard py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase rounded-lg shadow">Start</button>
+                                    <button onclick="resetPomodoro()" class="px-4 py-2 inner-widget border border-zinc-700 hover:border-zinc-500 text-white rounded-lg shadow"><i class="fas fa-rotate-right"></i></button>
+                                    <button onclick="switchPomodoroMode()" class="px-4 py-2 inner-widget border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white rounded-lg shadow"><i class="fas fa-mug-hot"></i></button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden flex flex-col h-full min-h-[380px]">
-                            <div class="border-b border-zinc-800 inner-widget px-4 py-2.5 flex items-center justify-between select-none">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
-                                    <i class="fas fa-clipboard-list text-purple-500"></i> Compiled Daily Report
-                                </span>
-                                <button onclick="copyDailyReport()" id="copy-report-btn" class="text-[10px] font-bold bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded-md transition-colors flex items-center space-x-1.5 shadow">
-                                    <i class="fas fa-copy"></i> <span id="copy-report-text">Copy Report</span>
-                                </button>
-                            </div>
-                            <div class="p-4 flex-grow flex flex-col space-y-4">
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1 block">Team Name</label>
-                                        <select id="team-name-input" class="w-full text-xs px-3 py-2 inner-widget border border-zinc-700 rounded-lg focus:outline-none focus:border-purple-500 text-white shadow-inner appearance-none cursor-pointer" onchange="compileDailyReport()">
-                                            <option value="">Select Team...</option>
-                                            <optgroup label="Cluster Tobin">
-                                                <option value="Yusaf">Yusaf</option><option value="Icesid">Icesid</option><option value="Fugerei">Fugerei</option><option value="Bey">Bey</option><option value="Staccato">Staccato</option><option value="Raelynn">Raelynn</option>
-                                            </optgroup>
-                                            <optgroup label="Cluster Solovey">
-                                                <option value="Montoya">Montoya</option><option value="Delta">Delta</option><option value="Ayden">Ayden</option><option value="Batid">Batid</option><option value="Constantin">Constantin</option><option value="Sneasel">Sneasel</option>
-                                            </optgroup>
-                                            <optgroup label="Cluster Charyl">
-                                                <option value="Chuck">Chuck</option><option value="Diocel">Diocel</option><option value="Paladius">Paladius</option><option value="Sherlock">Sherlock</option><option value="Vortex">Vortex</option><option value="Robreda">Robreda</option>
-                                            </optgroup>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1 block">Cluster</label>
-                                        <select id="cluster-name-input" class="w-full text-xs px-3 py-2 inner-widget border border-zinc-700 rounded-lg focus:outline-none focus:border-purple-500 text-white shadow-inner appearance-none cursor-pointer" onchange="updateClusterName(this.value)">
-                                            <option value="">Select Cluster...</option>
-                                            <option value="Cluster Charyl">Charyl</option>
-                                            <option value="Cluster Solovey">Solovey</option>
-                                            <option value="Cluster Tobin">Tobin</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="border border-zinc-700 rounded-lg p-4 inner-widget shadow-inner font-mono text-xs leading-relaxed select-all whitespace-pre-wrap outline-none text-zinc-300 flex-grow overflow-y-auto" id="compiled-report-output"></div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden flex flex-col">
+                        <div class="rounded-xl glass-widget shadow-2xl overflow-hidden flex flex-col border border-zinc-800">
                             <div class="border-b border-zinc-800 inner-widget px-4 py-2.5 flex items-center justify-between select-none">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
                                     <i class="fas fa-lightbulb text-purple-500"></i> Daily Alignment
                                 </span>
                                 <button onclick="refreshInspiration()" class="text-[10px] text-zinc-400 hover:text-white transition-colors"><i class="fas fa-sync-alt"></i></button>
                             </div>
-                            <div class="p-5 space-y-4">
-                                <div class="p-3 border-l-2 border-purple-500 bg-purple-900/10 rounded-r-lg">
+                            <div class="p-5 space-y-4 bg-zinc-900/20">
+                                <div class="p-4 border-l-2 border-purple-500 bg-purple-900/10 rounded-r-lg">
                                     <p id="motivational-quote-text" class="text-xs italic text-zinc-300 leading-relaxed font-serif">"Leadership is the capacity to translate vision into reality."</p>
                                     <p id="motivational-quote-author" class="text-[10px] text-purple-400 mt-2 font-bold uppercase tracking-wider">— Warren Bennis</p>
                                 </div>
-                                <div class="p-3 border-l-2 border-amber-500 bg-amber-900/10 rounded-r-lg">
+                                <div class="p-4 border-l-2 border-amber-500 bg-amber-900/10 rounded-r-lg">
                                     <p id="bible-verse-text" class="text-xs italic text-zinc-300 leading-relaxed font-serif">"Commit to the Lord whatever you do, and he will establish your plans."</p>
                                     <p id="bible-verse-ref" class="text-[10px] text-amber-500 mt-2 font-bold uppercase tracking-wider">— Proverbs 16:3</p>
                                 </div>
@@ -451,11 +797,143 @@
 
                     </div>
                 </div>
+
+                <div class="w-full mt-12 px-2 md:px-4 pb-8">
+                    
+                    <div class="flex items-end justify-between border-b border-zinc-800 pb-3 mb-6">
+                        <h2 class="text-2xl md:text-3xl font-black text-white tracking-tight">Trending topics</h2>
+                        <a href="#" class="text-sm font-bold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-2">
+                            <i class="fas fa-layer-group"></i> <span class="hidden sm:inline">See all topics</span><span class="sm:hidden">All</span>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <div class="glass-widget border border-zinc-800 rounded-xl overflow-hidden flex flex-col h-full shadow-lg">
+                            <div class="px-5 py-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-server text-purple-500 text-sm"></i>
+                                    <span class="font-bold text-white text-base">Operations</span>
+                                </div>
+                                <a href="#" class="px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 hover:border-purple-500 hover:text-purple-400 text-[10px] font-bold text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                                    View all <i class="fas fa-arrow-right text-[9px]"></i>
+                                </a>
+                            </div>
+                            <div class="p-5 flex flex-col gap-4">
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=WF&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-purple-400 transition-colors flex-grow truncate">Workflow Optimization in Q3</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-purple-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=PR&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-purple-400 transition-colors flex-grow truncate">Protocol: Rapid Issue Resolution</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-purple-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=TI&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-purple-400 transition-colors flex-grow truncate">Ticketing Best Practices 2026</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-purple-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=DC&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-purple-400 transition-colors flex-grow truncate">Dashboard Customization Guide</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-purple-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=SA&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-purple-400 transition-colors flex-grow truncate">Standardizing Attendance Tracking</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-purple-400 shrink-0"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="glass-widget border border-zinc-800 rounded-xl overflow-hidden flex flex-col h-full shadow-lg">
+                            <div class="px-5 py-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-book-open text-amber-500 text-sm"></i>
+                                    <span class="font-bold text-white text-base">Pedagogy</span>
+                                </div>
+                                <a href="#" class="px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 hover:border-amber-500 hover:text-amber-400 text-[10px] font-bold text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                                    View all <i class="fas fa-arrow-right text-[9px]"></i>
+                                </a>
+                            </div>
+                            <div class="p-5 flex flex-col gap-4">
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=CL&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-amber-400 transition-colors flex-grow truncate">Callan Method: Advanced Tips</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-amber-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=EB&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-amber-400 transition-colors flex-grow truncate">Engaging Absolute Beginners</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-amber-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=EA&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-amber-400 transition-colors flex-grow truncate">Effective Error Correction</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-amber-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=TE&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-amber-400 transition-colors flex-grow truncate">TPR Exercises for Kids</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-amber-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=AM&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-amber-400 transition-colors flex-grow truncate">Assessment Accuracy Metrics</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-amber-400 shrink-0"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="glass-widget border border-zinc-800 rounded-xl overflow-hidden flex flex-col h-full shadow-lg">
+                            <div class="px-5 py-4 border-b border-zinc-800 bg-zinc-900/40 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-users-viewfinder text-emerald-500 text-sm"></i>
+                                    <span class="font-bold text-white text-base">Leadership</span>
+                                </div>
+                                <a href="#" class="px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 hover:border-emerald-500 hover:text-emerald-400 text-[10px] font-bold text-zinc-300 uppercase tracking-widest transition-colors flex items-center gap-1.5">
+                                    View all <i class="fas fa-arrow-right text-[9px]"></i>
+                                </a>
+                            </div>
+                            <div class="p-5 flex flex-col gap-4">
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=DR&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-emerald-400 transition-colors flex-grow truncate">De-escalating Root Conflicts</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-emerald-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=MT&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-emerald-400 transition-colors flex-grow truncate">Motivating Teachers During Slumps</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-emerald-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=FB&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-emerald-400 transition-colors flex-grow truncate">The Feedback Sandwich Protocol</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-emerald-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=CB&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-emerald-400 transition-colors flex-grow truncate">Cross-Cultural Boundaries</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-emerald-400 shrink-0"></i>
+                                </a>
+                                <a href="#" class="flex items-center gap-4 group">
+                                    <img src="https://ui-avatars.com/api/?name=PC&background=27272a&color=fff" alt="Avatar" class="w-9 h-9 rounded-full shrink-0 border border-zinc-700">
+                                    <span class="text-sm font-medium text-zinc-300 group-hover:text-emerald-400 transition-colors flex-grow truncate">Preparing for Cluster Audits</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-zinc-600 group-hover:text-emerald-400 shrink-0"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
 
-            <div id="arcade-container" class="hidden">
-                <div id="game-view-container-chess" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full animate-fade-in hidden">
-                    <div class="lg:col-span-2 glass-widget p-6 rounded-2xl shadow-2xl flex flex-col min-h-[600px]">
+            <div id="arcade-container" class="hidden w-full flex-grow p-4 md:p-6 lg:p-10 mx-auto max-w-7xl animate-fade-in relative z-20">
+                
+                <div id="game-view-container-chess" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start w-full hidden">
+                    <div class="lg:col-span-2 glass-widget p-6 rounded-2xl border border-zinc-800 shadow-2xl flex flex-col min-h-[600px] bg-zinc-900/50">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 pb-4 border-b border-zinc-800">
                             <div>
                                 <h2 class="text-sm md:text-base font-black tracking-tight text-white flex items-center gap-2 uppercase">Arena Core</h2>
@@ -481,7 +959,7 @@
                     </div>
                 </div>
 
-                <div id="game-view-container-ttt" class="w-full max-w-md mx-auto glass-widget p-6 rounded-2xl shadow-2xl hidden animate-fade-in flex-col">
+                <div id="game-view-container-ttt" class="w-full max-w-md mx-auto glass-widget border border-zinc-800 p-6 rounded-2xl shadow-2xl hidden flex-col bg-zinc-900/50">
                     <div class="flex justify-between items-center pb-4 mb-6 border-b border-zinc-800">
                         <h2 class="text-base font-black text-white uppercase tracking-tight">Tic-Tac-Toe</h2>
                         <button onclick="resetTicTacToeGame()" class="px-3 py-1.5 inner-widget border border-zinc-700 text-[10px] font-bold uppercase rounded-lg text-white hover:text-purple-400">Reset</button>
@@ -500,7 +978,7 @@
                     <div id="ttt-status" class="text-center text-xs text-zinc-400 mt-4 h-4">Strike any matrix quadrant node.</div>
                 </div>
 
-                <div id="game-view-container-m2048" class="w-full max-w-md mx-auto glass-widget p-6 rounded-2xl shadow-2xl hidden animate-fade-in flex-col">
+                <div id="game-view-container-m2048" class="w-full max-w-md mx-auto glass-widget border border-zinc-800 p-6 rounded-2xl shadow-2xl hidden flex-col bg-zinc-900/50">
                     <div class="flex justify-between items-center pb-4 mb-4 border-b border-zinc-800">
                         <h2 class="text-base font-black text-white uppercase tracking-tight">2048 Merge</h2>
                         <div class="flex items-center gap-3 text-[10px] font-mono font-bold">
@@ -511,7 +989,7 @@
                     <div id="m2048-grid-board" class="grid grid-cols-4 grid-rows-4 gap-2 inner-widget p-3 rounded-xl border border-zinc-700 aspect-square w-full max-w-[280px] mx-auto shadow-inner"></div>
                 </div>
 
-                <div id="game-view-container-tetris" class="w-full max-w-xl mx-auto glass-widget p-4 md:p-6 rounded-2xl border border-zinc-800 shadow-2xl hidden grid-cols-1 md:grid-cols-3 gap-6 items-start animate-fade-in">
+                <div id="game-view-container-tetris" class="w-full max-w-xl mx-auto glass-widget border border-zinc-800 p-4 md:p-6 rounded-2xl shadow-2xl hidden grid-cols-1 md:grid-cols-3 gap-6 items-start bg-zinc-900/50">
                     <div class="md:col-span-2 flex justify-center gap-4">
                         <div class="flex flex-col gap-4">
                             <div class="bg-[#040406] p-2 rounded-xl border border-zinc-800 shadow-inner w-[80px]">
@@ -526,7 +1004,7 @@
                     <div class="space-y-4 w-full">
                         <div>
                             <h2 class="text-base font-black text-white uppercase tracking-tight">Tetris Cascade</h2>
-                            <div class="text-[9px] text-zinc-400 leading-relaxed mt-2 font-mono space-y-1 bg-zinc-900/40 p-2 rounded border border-zinc-800">
+                            <div class="text-[9px] text-zinc-400 leading-relaxed mt-2 font-mono space-y-1 bg-[#040406] p-2 rounded border border-zinc-800">
                                 <div><strong class="text-purple-400">Move:</strong> L/R Arrows or A/D</div>
                                 <div><strong class="text-purple-400">Rotate Right:</strong> Up or X</div>
                                 <div><strong class="text-purple-400">Rotate Left:</strong> Z</div>
@@ -542,15 +1020,17 @@
                         <button onclick="bootTetrisEngineInstance()" class="w-full py-2.5 inner-widget border border-zinc-700 hover:text-purple-400 text-white font-bold uppercase tracking-wider text-xs rounded-lg transition-all shadow">Reboot</button>
                     </div>
                 </div>
+
             </div>
-        </div>
+
+        </main>
     </div>
 
     <div id="auth-modal" class="fixed inset-0 z-[100] hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4 transition-opacity">
-        <div class="glass-widget border border-zinc-800 w-full max-w-sm rounded-2xl shadow-2xl flex flex-col overflow-hidden p-6 relative">
+        <div class="glass-widget border border-zinc-800 w-full max-w-sm rounded-2xl shadow-2xl flex flex-col overflow-hidden p-6 relative bg-zinc-900/80">
             <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-zinc-500 hover:text-white"><i class="fas fa-times"></i></button>
             <h2 class="text-xl font-black text-white tracking-tight text-center mb-2 uppercase">Leader Authentication</h2>
-            <p class="text-xs text-zinc-400 text-center mb-6">Enter secure passcode to mount workspace.</p>
+            <p class="text-xs text-zinc-400 text-center mb-6">Enter secure passcode to mount arcade.</p>
             <input type="password" id="auth-code-input" placeholder="Passcode..." class="w-full p-3 bg-[#08080c] border border-zinc-800 rounded-xl text-center text-white tracking-widest mb-4 focus:outline-none focus:border-purple-500 shadow-inner">
             <button onclick="verifyAuthCode()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-lg transition-all uppercase tracking-widest text-xs">Authorize</button>
         </div>
@@ -572,7 +1052,7 @@
                 <div class="absolute bottom-0 left-0 h-[2px] bg-purple-600 transition-all duration-300 shadow-[0_0_10px_rgba(147,51,234,0.8)]" id="quiz-header-progress" style="width: 10%;"></div>
             </div>
             
-            <div id="quiz-content" class="p-6 md:p-8 overflow-y-auto custom-scroll flex-grow flex flex-col justify-center bg-[#08080c]/80">
+            <div id="quiz-content" class="p-6 md:p-8 overflow-y-auto custom-scroll flex-grow flex flex-col justify-center bg-[#08080c]/90">
                 <h3 id="quiz-question-text" class="text-lg md:text-xl font-bold mb-6 text-white leading-relaxed tracking-tight">Loading Question...</h3>
                 <div id="quiz-options-container" class="space-y-3 w-full"></div>
                 <div id="quiz-feedback-box" class="hidden mt-6 p-4 rounded-xl border text-sm leading-relaxed animate-fade-in shadow-inner">
@@ -582,25 +1062,166 @@
             </div>
 
             <div class="p-4 border-t border-zinc-800 inner-widget flex justify-end">
-                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-2.5 bg-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-purple-500 transition-all shadow">Next <i class="fas fa-arrow-right ml-1"></i></button>
+                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden btn-standard bg-purple-600 text-white uppercase tracking-wider hover:bg-purple-500 shadow">Next <i class="fas fa-arrow-right ml-1"></i></button>
             </div>
         </div>
     </div>
 
     <div id="easter-egg-modal" class="fixed inset-0 z-[110] hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="glass-widget p-8 rounded-3xl border border-purple-500/30 text-center shadow-[0_0_50px_rgba(168,85,247,0.3)] max-w-sm w-full">
+        <div class="glass-widget p-8 rounded-3xl border border-purple-500/30 text-center shadow-[0_0_50px_rgba(168,85,247,0.3)] max-w-sm w-full bg-zinc-900/90">
             <div id="thunder-portrait" class="hidden mb-6">
-                <img src="thunder.jpg" alt="Thunder" class="w-32 h-32 rounded-full mx-auto border-4 border-purple-500 shadow-2xl">
+                <img src="images/THUNDER.jpg" alt="Thunder" class="w-32 h-32 rounded-full mx-auto border-4 border-purple-500 shadow-2xl">
             </div>
             <h3 id="egg-title" class="text-purple-400 font-black uppercase tracking-widest text-xs mb-4">Result</h3>
             <div id="egg-display" class="text-white my-6 font-bold text-6xl flex flex-col items-center justify-center gap-2"></div>
-            <button onclick="closeEasterEgg()" class="px-6 py-2 bg-zinc-800 text-white rounded-lg text-xs font-bold uppercase hover:bg-zinc-700 transition-all">Close</button>
+            <button onclick="closeEasterEgg()" class="btn-standard bg-zinc-800 text-white hover:bg-zinc-700">Close</button>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // 1. DATA: INSPIRATION ARRAYS
+        // 1. UI LOGIC (Sidebar, Accordions, View Engine)
+        // ==========================================
+        let isLeaderAuthenticated = false; 
+        let operationalActiveViewMode = 'home'; 
+        let currentActiveSubGame = 'chess';
+        let isSidebarOpen = false;
+
+        // Persisting Click-to-Toggle Sidebar Logic
+        function toggleSidebar(forceState = null) {
+            const sidebar = document.getElementById('app-left-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (!sidebar) return;
+            
+            if (forceState === true) isSidebarOpen = true;
+            else if (forceState === false) isSidebarOpen = false;
+            else isSidebarOpen = !isSidebarOpen;
+
+            if (isSidebarOpen) {
+                sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+            }
+        }
+
+        // Submenu Toggler
+        function toggleNavSubmenu(menuId) {
+            const menus = document.querySelectorAll('.nav-submenu');
+            const icons = document.querySelectorAll('.sidebar-accordion .fa-chevron-down');
+            
+            const targetMenu = document.getElementById(menuId);
+            const targetIcon = document.getElementById('icon-' + menuId);
+            
+            const isClosing = !targetMenu.classList.contains('hidden');
+
+            // Close all
+            menus.forEach(m => m.classList.add('hidden'));
+            icons.forEach(i => i.classList.remove('rotate-180'));
+
+            // Open targeted
+            if (!isClosing) {
+                targetMenu.classList.remove('hidden');
+                targetIcon.classList.add('rotate-180');
+            }
+        }
+
+        // FAQ Toggle
+        function toggleFaq(id) {
+            const allContents = document.querySelectorAll('.faq-content');
+            const allIcons = document.querySelectorAll('.fa-chevron-down[id^="icon-faq-"]');
+            
+            const content = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            const isOpen = content.classList.contains('is-open');
+
+            allContents.forEach(c => c.classList.remove('is-open'));
+            allIcons.forEach(i => i.classList.remove('rotate-180'));
+
+            if (!isOpen) {
+                content.classList.add('is-open');
+                icon.classList.add('rotate-180');
+            }
+        }
+
+        // Authentication for Subnets
+        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); document.getElementById('auth-code-input').focus(); }
+        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+        function verifyAuthCode() {
+            const input = document.getElementById('auth-code-input').value;
+            if (input === 'Leaders') {
+                isLeaderAuthenticated = true; closeAuthModal();
+                switchViewEngine('arcade');
+            } else { alert("Incorrect Passcode."); }
+        }
+
+        // Global View Engine
+        function switchViewEngine(targetMode, initialGameKey = 'chess') {
+            toggleSidebar(false); // Hide sidebar when switching views
+
+            if (targetMode === 'arcade' && !isLeaderAuthenticated) { openAuthModal(); return; }
+            operationalActiveViewMode = targetMode;
+            
+            const homeViewNode = document.getElementById('landing-page-view');
+            const appViewNode = document.getElementById('app-workspace-view');
+            const arcadeContainer = document.getElementById('arcade-container');
+            const landingBackground = document.getElementById('landing-background');
+            
+            // Manage Active Sidebar States
+            document.querySelectorAll('.sidebar-nav-btn').forEach(btn => btn.classList.remove('nav-active'));
+
+            if (typeof haltTetrisLoopEngine === 'function') haltTetrisLoopEngine();
+
+            if (targetMode === 'home') {
+                if (homeViewNode) homeViewNode.classList.remove('hidden');
+                if (landingBackground) landingBackground.classList.remove('hidden');
+                if (appViewNode) appViewNode.classList.add('hidden');
+                if (arcadeContainer) arcadeContainer.classList.add('hidden');
+                document.querySelector('.nav-home').classList.add('nav-active');
+            } else if (targetMode === 'workspace') {
+                if (homeViewNode) homeViewNode.classList.add('hidden');
+                if (landingBackground) landingBackground.classList.add('hidden');
+                if (appViewNode) appViewNode.classList.remove('hidden');
+                if (arcadeContainer) arcadeContainer.classList.add('hidden');
+                setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+            } else if (targetMode === 'arcade') {
+                if (homeViewNode) homeViewNode.classList.add('hidden');
+                if (landingBackground) landingBackground.classList.add('hidden');
+                if (appViewNode) appViewNode.classList.add('hidden');
+                if (arcadeContainer) arcadeContainer.classList.remove('hidden');
+                switchActiveGameView(initialGameKey);
+            }
+        }
+
+        function switchActiveGameView(viewKey) {
+            currentActiveSubGame = viewKey;
+            ['chess', 'ttt', 'm2048', 'tetris'].forEach(m => {
+                const element = document.getElementById(`game-view-container-${m}`);
+                if (element) {
+                    if (m === viewKey) { element.classList.remove('hidden'); if(m==='chess') element.classList.add('grid'); else element.classList.add('flex'); } 
+                    else { element.classList.add('hidden'); element.classList.remove('grid', 'flex'); }
+                }
+            });
+
+            document.querySelectorAll('.nav-arcade').forEach(btn => btn.classList.remove('nav-active'));
+            const specificBtns = Array.from(document.querySelectorAll('.nav-arcade'));
+            
+            const iconMap = { 'chess': 'fa-chess-knight', 'ttt': 'fa-border-all', 'm2048': 'fa-calculator', 'tetris': 'fa-cubes' };
+            specificBtns.forEach(b => {
+                if (b.innerHTML.includes(iconMap[viewKey])) b.classList.add('nav-active');
+            });
+
+            if (typeof haltTetrisLoopEngine === 'function') haltTetrisLoopEngine();
+            if (viewKey === 'm2048') init2048EngineInstance();
+            if (viewKey === 'tetris') bootTetrisEngineInstance();
+            if (viewKey === 'chess') initBoardVisuals();
+            if (viewKey === 'ttt') resetTicTacToeGame();
+        }
+
+        // ==========================================
+        // 2. INSPIRATION & POMODORO LOGIC
         // ==========================================
         const quotes = [
             { text: "Leadership is the capacity to translate vision into reality.", author: "Warren Bennis" },
@@ -612,27 +1233,7 @@
             { text: "Outstanding leaders go out of their way to boost the self-esteem of their personnel.", author: "Sam Walton" },
             { text: "The supreme quality for leadership is unquestionably integrity.", author: "Dwight D. Eisenhower" },
             { text: "Do not follow where the path may lead. Go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" },
-            { text: "Leadership and learning are indispensable to each other.", author: "John F. Kennedy" },
-            { text: "To handle yourself, use your head; to handle others, use your heart.", author: "Eleanor Roosevelt" },
-            { text: "Leadership is not about a title or a designation. It's about impact, influence, and inspiration.", author: "Robin Sharma" },
-            { text: "Great leaders are almost always great simplifiers.", author: "Colin Powell" },
-            { text: "The function of leadership is to produce more leaders, not more followers.", author: "Ralph Nader" },
-            { text: "I suppose leadership at one time meant muscles; but today it means getting along with people.", author: "Mahatma Gandhi" },
-            { text: "If your actions inspire others to dream more, learn more, do more and become more, you are a leader.", author: "John Quincy Adams" },
-            { text: "Leadership is the art of giving people a platform for spreading ideas that work.", author: "Seth Godin" },
-            { text: "A genuine leader is not a searcher for consensus but a molder of consensus.", author: "Martin Waldo King Jr." },
-            { text: "The greatest leader is not necessarily the one who does the greatest things. He is the one that gets the people to do the greatest things.", author: "Ronald Reagan" },
-            { text: "Earn your leadership every day.", author: "Michael Jordan" },
-            { text: "Effective leadership is not about making speeches or being liked; leadership is defined by results not attributes.", author: "Peter Drucker" },
-            { text: "Example is not the main thing in influencing others. It is the only thing.", author: "Albert Schweitzer" },
-            { text: "True leadership lies in guiding others to success.", author: "Bill Owens" },
-            { text: "Leaders aren't born, they are made. And they are made just like anything else, through hard work.", author: "Vince Lombardi" },
-            { text: "A good objective of leadership is to help those who are doing poorly to do well and to help those who are doing well to do even better.", author: "Jim Rohn" },
-            { text: "Leadership is an action, not a position.", author: "Donald McGannon" },
-            { text: "The art of communication is the language of leadership.", author: "James Humes" },
-            { text: "Become the kind of leader that people would follow voluntarily; even if you had no title or position.", author: "Brian Tracy" },
-            { text: "He who has never learned to obey cannot be a good commander.", author: "Aristotle" },
-            { text: "Leadership is unlocking people's potential to become better.", author: "Bill Bradley" }
+            { text: "Leadership and learning are indispensable to each other.", author: "John F. Kennedy" }
         ];
 
         const verses = [
@@ -645,27 +1246,7 @@
             { text: "And let us not grow weary of doing good, for in due season we will reap, if we do not give up.", ref: "Galatians 6:9" },
             { text: "But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness.", ref: "Galatians 5:22" },
             { text: "Do everything in love.", ref: "1 Corinthians 16:14" },
-            { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" },
-            { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
-            { text: "Rejoice always, pray continually, give thanks in all circumstances.", ref: "1 Thessalonians 5:16-18" },
-            { text: "Let your light shine before others, that they may see your good deeds and glorify your Father in heaven.", ref: "Matthew 5:16" },
-            { text: "Whatever you do, work at it with all your heart, as working for the Lord, not for human masters.", ref: "Colossians 3:23" },
-            { text: "A generous person will prosper; whoever refreshes others will be refreshed.", ref: "Proverbs 11:25" },
-            { text: "He has shown you, O mortal, what is good. And what does the Lord require of you? To act justly and to love mercy and to walk humbly with your God.", ref: "Micah 6:8" },
-            { text: "The peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.", ref: "Philippians 4:7" },
-            { text: "Now faith is confidence in what we hope for and assurance about what we do not see.", ref: "Hebrews 11:1" },
-            { text: "So do not fear, for I am with you; do not be dismayed, for I am your God.", ref: "Isaiah 41:10" },
-            { text: "Taste and see that the Lord is good; blessed is the one who takes refuge in him.", ref: "Psalm 34:8" },
-            { text: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", ref: "2 Corinthians 5:17" },
-            { text: "We love because he first loved us.", ref: "1 John 4:19" },
-            { text: "Set your minds on things above, not on earthly things.", ref: "Colossians 3:2" },
-            { text: "For we walk by faith, not by sight.", ref: "2 Corinthians 5:7" },
-            { text: "The joy of the Lord is your strength.", ref: "Nehemiah 8:10" },
-            { text: "Be completely humble and gentle; be patient, bearing with one another in love.", ref: "Ephesians 4:2" },
-            { text: "God is our refuge and strength, an ever-present help in trouble.", ref: "Psalm 46:1" },
-            { text: "Let all that you do be done in love.", ref: "1 Corinthians 16:14" },
-            { text: "With man this is impossible, but with God all things are possible.", ref: "Matthew 19:26" },
-            { text: "In all your ways submit to him, and he will make your paths straight.", ref: "Proverbs 3:6" }
+            { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" }
         ];
 
         function refreshInspiration() {
@@ -677,9 +1258,6 @@
             document.getElementById('bible-verse-ref').textContent = `— ${v.ref}`;
         }
 
-        // ==========================================
-        // 2. POMODORO ENGINE
-        // ==========================================
         let pomoInterval; let pomoTimeLeft = 25 * 60; let pomoIsRunning = false; let pomoIsWorkMode = true;
 
         function updatePomodoroDisplay() {
@@ -722,161 +1300,16 @@
             resetPomodoro();
         }
 
-        // ==========================================
-        // 3. GLOBAL ROUTING, CLOCKS & MOBILE SIDEBAR
-        // ==========================================
-        let isLeaderAuthenticated = false; let operationalActiveViewMode = 'home'; let currentActiveSubGame = 'chess';
-
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('app-left-sidebar');
-            if (sidebar) sidebar.classList.toggle('-translate-x-full');
-        }
-
-        function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); document.getElementById('auth-code-input').focus(); }
-        function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
-        function verifyAuthCode() {
-            const input = document.getElementById('auth-code-input').value;
-            if (input === 'Leaders') {
-                isLeaderAuthenticated = true; closeAuthModal();
-                const restricted = document.getElementById('restricted-tools');
-                if (restricted) restricted.classList.remove('opacity-50', 'pointer-events-none');
-                switchViewEngine('workspace');
-            } else { alert("Incorrect Passcode."); }
-        }
-
-        function switchViewEngine(targetMode, initialGameKey = 'chess') {
-            // Dismiss mobile sidebar automatically during navigation
-            const sidebar = document.getElementById('app-left-sidebar');
-            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.add('-translate-x-full');
-            }
-
-            if (targetMode === 'arcade' && !isLeaderAuthenticated) { openAuthModal(); return; }
-            operationalActiveViewMode = targetMode;
-            
-            const homeViewNode = document.getElementById('landing-page-view');
-            const appViewNode = document.getElementById('app-workspace-view');
-            const workspaceContainer = document.getElementById('workspace-container');
-            const arcadeContainer = document.getElementById('arcade-container');
-            const landingBackground = document.getElementById('landing-background');
-            
-            document.querySelectorAll('.sidebar-nav-btn').forEach(btn => btn.classList.remove('bg-purple-900/40', 'text-white', 'border-purple-500/30'));
-            if (typeof haltTetrisLoopEngine === 'function') haltTetrisLoopEngine();
-
-            if (targetMode === 'home') {
-                if (homeViewNode) homeViewNode.classList.remove('hidden');
-                if (landingBackground) landingBackground.classList.remove('hidden');
-                if (appViewNode) appViewNode.classList.add('hidden');
-            } else {
-                if (homeViewNode) homeViewNode.classList.add('hidden');
-                if (landingBackground) landingBackground.classList.add('hidden');
-                if (appViewNode) appViewNode.classList.remove('hidden');
-                
-                if (targetMode === 'workspace') {
-                    if (workspaceContainer) workspaceContainer.classList.remove('hidden');
-                    if (arcadeContainer) arcadeContainer.classList.add('hidden');
-                    const wBtn = document.getElementById('nav-btn-workspace');
-                    if (wBtn) wBtn.classList.add('bg-purple-900/40', 'text-white', 'border-purple-500/30');
-                    setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
-                } else if (targetMode === 'arcade') {
-                    if (workspaceContainer) workspaceContainer.classList.add('hidden');
-                    if (arcadeContainer) arcadeContainer.classList.remove('hidden');
-                    switchActiveGameView(initialGameKey);
-                }
-            }
-        }
-
-        function switchActiveGameView(viewKey) {
-            currentActiveSubGame = viewKey;
-            ['chess', 'ttt', 'm2048', 'tetris'].forEach(m => {
-                const element = document.getElementById(`game-view-container-${m}`);
-                if (element) {
-                    if (m === viewKey) { element.classList.remove('hidden'); if(m==='chess') element.classList.add('grid'); else element.classList.add('flex'); } 
-                    else { element.classList.add('hidden'); element.classList.remove('grid', 'flex'); }
-                }
-            });
-            const targetButton = document.getElementById(`nav-btn-${viewKey}`);
-            if (targetButton) targetButton.classList.add('bg-purple-900/40', 'text-white', 'border-purple-500/30');
-
-            if (typeof haltTetrisLoopEngine === 'function') haltTetrisLoopEngine();
-            if (viewKey === 'm2048') init2048EngineInstance();
-            if (viewKey === 'tetris') bootTetrisEngineInstance();
-            if (viewKey === 'chess') initBoardVisuals();
-            if (viewKey === 'ttt') resetTicTacToeGame();
-        }
-
-        // Setup World Clocks
-        setInterval(() => {
-            const now = new Date();
-            const ph = document.getElementById('clock-ph'); const jp = document.getElementById('clock-jp');
-            if (ph) ph.textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-            if (jp) jp.textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-        }, 1000);
 
         // ==========================================
-        // 4. DAILY WORKSPACE (Tasks & Report)
+        // 3. CALENDAR LOGIC 
         // ==========================================
         const workspaceState = {
-            tasks: [
-                { id: "t1", text: "Check Low Star Rating (Review and Provide Verdict)", checked: true },
-                { id: "t2", text: "Check Attendance Monitoring (Check for ALU trends)", checked: true },
-                { id: "t3", text: "Check Quality Monitoring (QC Complaints)", checked: true },
-                { id: "t4", text: "Answer member's concerns", checked: true },
-                { id: "t5", text: "Roved to the assigned academic floor", checked: true },
-                { id: "t6", text: "Have coaching session with teacher Sparks.", checked: true }
-            ],
-            customTaskCounter: 6, currentYear: 2026, currentMonth: 4, clusterName: "", calendarReminders: {}
+            currentYear: 2026, currentMonth: 4, calendarReminders: {}
         };
-
         const savedCalendar = localStorage.getItem('thunder-calendar');
         if (savedCalendar) { workspaceState.calendarReminders = JSON.parse(savedCalendar); }
 
-        function renderTasks() {
-            const container = document.getElementById('master-todo-container'); if(!container) return; container.innerHTML = "";
-            workspaceState.tasks.forEach(task => {
-                const row = document.createElement('div');
-                row.className = "flex items-start space-x-3 group border-b border-zinc-800/60 pb-2.5 pt-1 last:border-0 last:pb-0 relative";
-                
-                const checkbox = document.createElement('input'); checkbox.type = "checkbox";
-                checkbox.className = "thunder-checkbox mt-1 w-4 h-4 border border-zinc-600 rounded bg-transparent checked:bg-purple-600 checked:border-purple-600 flex items-center justify-center after:content-['✓'] after:text-white after:text-xs after:font-bold after:hidden checked:after:block transition-all shrink-0 cursor-pointer shadow-inner";
-                checkbox.checked = task.checked; checkbox.onchange = (e) => { const t = workspaceState.tasks.find(t => t.id === task.id); if (t) { t.checked = e.target.checked; renderTasks(); compileDailyReport(); } };
-
-                const textSpan = document.createElement('div'); textSpan.contentEditable = "true";
-                textSpan.className = `text-sm flex-grow outline-none px-1.5 py-0.5 rounded transition-colors text-white whitespace-pre-wrap ${task.checked ? 'line-through opacity-40' : ''}`;
-                textSpan.innerText = task.text;
-                textSpan.oninput = () => { const t = workspaceState.tasks.find(t => t.id === task.id); if (t) { t.text = textSpan.innerText; compileDailyReport(); } };
-                
-                row.appendChild(checkbox); row.appendChild(textSpan); container.appendChild(row);
-            });
-            const total = workspaceState.tasks.length; const checked = workspaceState.tasks.filter(t => t.checked).length; const percentage = total === 0 ? 0 : Math.round((checked / total) * 100);
-            document.getElementById('task-progress-text').textContent = `${percentage}% Complete (${checked}/${total})`; 
-            document.getElementById('task-progress-bar').style.width = `${percentage}%`;
-        }
-
-        function createNewCustomTask() {
-            const input = document.getElementById('new-task-input'); const val = input ? input.value.trim() : "";
-            if(!val) return; workspaceState.customTaskCounter++; workspaceState.tasks.push({ id: `t-custom-${workspaceState.customTaskCounter}`, text: val, checked: false });
-            if(input) input.value = ""; renderTasks(); compileDailyReport();
-        }
-
-        function updateClusterName(val) { workspaceState.clusterName = val; compileDailyReport(); }
-
-        function compileDailyReport() {
-            const outBox = document.getElementById('compiled-report-output'); if(!outBox) return;
-            const formattedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            const teamInput = document.getElementById('team-name-input'); const team = teamInput && teamInput.value.trim() !== "" ? teamInput.value : "[Unassigned Team]";
-            const cluster = workspaceState.clusterName || "[Unassigned Cluster]";
-            
-            const completedText = workspaceState.tasks.filter(t => t.checked && t.text.trim() !== "").length > 0 ? workspaceState.tasks.filter(t => t.checked && t.text.trim() !== "").map(t => `- ${t.text}`).join("\n") : "- No completed tasks logged.";
-            const ongoingText = workspaceState.tasks.filter(t => !t.checked && t.text.trim() !== "").length > 0 ? workspaceState.tasks.filter(t => !t.checked && t.text.trim() !== "").map(t => `- ${t.text}`).join("\n") : "- No ongoing tasks.";
-
-            outBox.textContent = `Daily Report\nDate: ${formattedDate}\nTeam Name: ${team}\nCluster: ${cluster}\n\nKey Accomplishments / Tasks Completed\n${completedText}\n\nOngoing Tasks & Progress\n${ongoingText}`;
-        }
-        function copyDailyReport() { navigator.clipboard.writeText(document.getElementById('compiled-report-output')?.textContent || '').then(() => { const btnText = document.getElementById('copy-report-text'); if(btnText){ btnText.textContent = "Copied!"; setTimeout(() => btnText.textContent = "Copy Report", 2000); }}); }
-
-        // ==========================================
-        // 5. CALENDAR LOGIC (Dynamic Engine)
-        // ==========================================
         let selectedModalDate = "";
 
         function renderCalendarGrid() {
@@ -885,7 +1318,7 @@
             document.getElementById('calendar-month-year-label').textContent = `${monthNames[workspaceState.currentMonth]} ${workspaceState.currentYear}`;
             
             ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach(d => { 
-                const h = document.createElement('div'); h.className = "p-2 text-[10px] uppercase tracking-widest text-zinc-400 border-b border-zinc-500/20 font-black"; h.textContent = d; grid.appendChild(h); 
+                const h = document.createElement('div'); h.className = "p-2 text-[10px] uppercase tracking-widest text-zinc-400 border-b border-zinc-700/50 font-black"; h.textContent = d; grid.appendChild(h); 
             });
             
             const firstDayIdx = new Date(workspaceState.currentYear, workspaceState.currentMonth, 1).getDay(); 
@@ -893,7 +1326,7 @@
             const daysInMonth = new Date(workspaceState.currentYear, workspaceState.currentMonth + 1, 0).getDate();
             const today = new Date();
             
-            for (let i = 0; i < adjustedStart; i++) { const cell = document.createElement('div'); cell.className = "h-16 p-2 border-r border-b border-zinc-500/10"; grid.appendChild(cell); }
+            for (let i = 0; i < adjustedStart; i++) { const cell = document.createElement('div'); cell.className = "h-16 p-2 border-r border-b border-zinc-700/50"; grid.appendChild(cell); }
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateKey = `${workspaceState.currentYear}-${String(workspaceState.currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -901,7 +1334,7 @@
                 const hasEvent = !!workspaceState.calendarReminders[dateKey];
 
                 const cell = document.createElement('div'); 
-                cell.className = `h-16 p-2 border-r border-b border-zinc-500/20 text-left cursor-pointer transition-all relative flex flex-col justify-start group ${isToday ? 'bg-purple-600/20 shadow-[inset_0_0_12px_rgba(168,85,247,0.2)]' : 'hover:bg-zinc-500/10'}`;
+                cell.className = `h-16 p-2 border-r border-b border-zinc-700/50 text-left cursor-pointer transition-all relative flex flex-col justify-start group ${isToday ? 'bg-purple-600/20 shadow-[inset_0_0_12px_rgba(168,85,247,0.2)]' : 'hover:bg-white/5'}`;
                 cell.onclick = () => openCalendarModal(dateKey);
                 
                 cell.innerHTML = `
@@ -925,7 +1358,78 @@
         }
 
         // ==========================================
-        // 6. QUIZMASTER DATABASE & CONTROLLER
+        // 4. EASTER EGGS (Unified Elements)
+        // ==========================================
+        let logoClickCount = 0; let clickTimer;
+
+        function handleLogoClick() {
+            logoClickCount++; clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => { logoClickCount = 0; }, 2000);
+            if (logoClickCount >= 3) { showEasterEgg('portrait'); logoClickCount = 0; } 
+            else { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        }
+
+        function triggerEasterEgg(type) {
+            const modal = document.getElementById('easter-egg-modal');
+            const display = document.getElementById('egg-display');
+            const title = document.getElementById('egg-title');
+            const portrait = document.getElementById('thunder-portrait');
+            
+            portrait.classList.add('hidden'); modal.classList.remove('hidden'); display.textContent = "...";
+            gsap.fromTo(display, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3 });
+
+            setTimeout(() => {
+                if (type === 'coin') {
+                    const result = Math.random() > 0.5 ? "Heads" : "Tails"; title.textContent = "Coin Flip Result";
+                    display.innerHTML = `<i class="fas fa-coins text-amber-400 mb-2"></i><span class="text-2xl block">${result}</span>`;
+                } else {
+                    const result = Math.floor(Math.random() * 6) + 1; title.textContent = "Die Roll Result";
+                    const diceIcons = ['one', 'two', 'three', 'four', 'five', 'six'];
+                    display.innerHTML = `<i class="fas fa-dice-${diceIcons[result-1]} text-purple-400 mb-2"></i><span class="text-2xl block">${result}</span>`;
+                }
+            }, 600);
+        }
+
+        function showEasterEgg(mode) {
+            const modal = document.getElementById('easter-egg-modal');
+            const portrait = document.getElementById('thunder-portrait');
+            const display = document.getElementById('egg-display');
+            const title = document.getElementById('egg-title');
+
+            modal.classList.remove('hidden');
+            if (mode === 'portrait') {
+                portrait.classList.remove('hidden'); title.textContent = "COMMANDER IDENTIFIED";
+                display.innerHTML = `<span class="text-2xl block text-purple-400">THUNDER</span>`;
+                launchConfetti();
+            }
+        }
+        function closeEasterEgg() { document.getElementById('easter-egg-modal').classList.add('hidden'); document.getElementById('thunder-portrait').classList.add('hidden'); }
+        
+        let keySequence = ""; const secretCode = "thunder";
+        window.addEventListener('keydown', (e) => {
+            keySequence += e.key.toLowerCase(); if (keySequence.length > secretCode.length) keySequence = keySequence.slice(-secretCode.length);
+            if (keySequence === secretCode) showEasterEgg('portrait');
+        });
+
+        function launchConfetti() {
+            const duration = 3 * 1000; const animationEnd = Date.now() + duration;
+            const frame = () => {
+                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < animationEnd) requestAnimationFrame(frame);
+            };
+            frame();
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                document.body.style.setProperty('--cursor-x', `${e.clientX}px`);
+                document.body.style.setProperty('--cursor-y', `${e.clientY}px`);
+            });
+        });
+
+        // ==========================================
+        // 5. QUIZMASTER DATABASE & CONTROLLER
         // ==========================================
         const qBank = [
           {t:'mc',d:'Easy',q:'What is the mandatory retirement age for an employee?',o:['A. 55 years old','B. 60 years old','C. 65 years old','D. 50 years old'],a:'B. 60 years old',f:'Sec 23.1 states 60 is the mandatory age, though extensions are possible with company approval!'},
@@ -1109,8 +1613,10 @@
         function triggerMiniConfetti() { const emojis = ['✨', '⭐', '💡', '🎉']; const el = document.createElement('div'); el.className = "absolute text-2xl animate-drop pointer-events-none z-[110]"; el.textContent = emojis[Math.floor(Math.random() * emojis.length)]; el.style.left = "50%"; el.style.top = "40%"; document.getElementById('quiz-modal').appendChild(el); setTimeout(() => el.remove(), 2000); }
 
         // ==========================================
-        // 7. SUBNET ARCADE ENGINES
+        // 6. SUBNET ARCADE ENGINES
         // ==========================================
+        
+        // Chess Engine
         const chess = new Chess(); let selectedSquare = null, possibleMoves = [], playerColor = 'w', lastMoveData = null, aiProcessingLock = false, boardThemeSetting = 'classic';
         function initBoardVisuals() {
             const boardContainer = document.getElementById('chess-board'); if (!boardContainer) return; boardContainer.innerHTML = ''; const isReversed = (playerColor === 'b');
@@ -1278,90 +1784,6 @@
                 else if (k === 'arrowdown') { processTetrisTickFrame(); } else if (k === 'arrowup' || k === 'x') { rotateTetrisActivePiece(); }
                 else if (k === ' ' || k === 'spacebar') { hardDropTetrisPiece(); } else if (k === 'shift' || k === 'c') { holdTetrisPiece(); } renderTetrisCanvasMatrix();
             }
-        });
-
-        // ==========================================
-        // 8. EASTER EGGS ENGINE (Unified Elements)
-        // ==========================================
-        let logoClickCount = 0; let clickTimer;
-
-        function handleLogoClick() {
-            logoClickCount++; clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => { logoClickCount = 0; }, 2000);
-            if (logoClickCount >= 3) { showEasterEgg('portrait'); logoClickCount = 0; } 
-            else { switchViewEngine('home'); }
-        }
-
-        function triggerEasterEgg(type) {
-            const modal = document.getElementById('easter-egg-modal');
-            const display = document.getElementById('egg-display');
-            const title = document.getElementById('egg-title');
-            const portrait = document.getElementById('thunder-portrait');
-            
-            portrait.classList.add('hidden'); modal.classList.remove('hidden'); display.textContent = "...";
-            gsap.fromTo(display, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3 });
-
-            setTimeout(() => {
-                if (type === 'coin') {
-                    const result = Math.random() > 0.5 ? "Heads" : "Tails"; title.textContent = "Coin Flip Result";
-                    display.innerHTML = `<i class="fas fa-coins text-amber-400 mb-2"></i><span class="text-2xl block">${result}</span>`;
-                } else {
-                    const result = Math.floor(Math.random() * 6) + 1; title.textContent = "Die Roll Result";
-                    const diceIcons = ['one', 'two', 'three', 'four', 'five', 'six'];
-                    display.innerHTML = `<i class="fas fa-dice-${diceIcons[result-1]} text-purple-400 mb-2"></i><span class="text-2xl block">${result}</span>`;
-                }
-            }, 600);
-        }
-
-        function showEasterEgg(mode) {
-            const modal = document.getElementById('easter-egg-modal');
-            const portrait = document.getElementById('thunder-portrait');
-            const display = document.getElementById('egg-display');
-            const title = document.getElementById('egg-title');
-
-            modal.classList.remove('hidden');
-            if (mode === 'portrait') {
-                portrait.classList.remove('hidden'); title.textContent = "COMMANDER IDENTIFIED";
-                display.innerHTML = `<span class="text-2xl block text-purple-400">THUNDER</span>`;
-                launchConfetti();
-            }
-        }
-
-        function triggerHiddenMenu() { showEasterEgg('portrait'); }
-        function closeEasterEgg() { document.getElementById('easter-egg-modal').classList.add('hidden'); document.getElementById('thunder-portrait').classList.add('hidden'); }
-
-        let keySequence = ""; const secretCode = "thunder";
-        window.addEventListener('keydown', (e) => {
-            keySequence += e.key.toLowerCase(); if (keySequence.length > secretCode.length) keySequence = keySequence.slice(-secretCode.length);
-            if (keySequence === secretCode) triggerHiddenMenu();
-        });
-
-        function launchConfetti() {
-            const duration = 3 * 1000; const animationEnd = Date.now() + duration;
-            const frame = () => {
-                confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
-                confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
-                if (Date.now() < animationEnd) requestAnimationFrame(frame);
-            };
-            frame();
-        }
-
-        // Mouse Tracker Gradient Flow
-        document.addEventListener('mousemove', (e) => {
-            requestAnimationFrame(() => {
-                document.body.style.setProperty('--cursor-x', `${e.clientX}px`);
-                document.body.style.setProperty('--cursor-y', `${e.clientY}px`);
-            });
-        });
-
-        // ==========================================
-        // 9. CORE SYSTEM BOOTLOADER
-        // ==========================================
-        document.addEventListener("DOMContentLoaded", () => {
-            renderTasks();
-            compileDailyReport();
-            renderCalendarGrid();
-            refreshInspiration();
         });
     </script>
 </body>
